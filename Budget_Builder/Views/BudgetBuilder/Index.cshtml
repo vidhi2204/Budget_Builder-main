@@ -1,0 +1,644 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="delete-category" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <div class="delete-cat-image d-flex flex-column  align-items-center">
+                    <img src="../images/toppng.com-warning-icon-2400x2400.png" width="50px" alt="">
+                    <p>Are you sure you want to Delete this category?</p>
+                    <input type="hidden" id="cat-index">
+                    <input type="hidden" id="is-income">
+
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <a type="submit" class="btn btn-primary" onclick="deleteCategory()">Yes</a>
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reset-sheet" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <div class="delete-cat-image d-flex flex-column  align-items-center">
+                    <p>Are you sure you want to Reset sheet?</p>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <a type="submit" class="btn btn-primary" onclick="resetSheet()">Yes</a>
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="apply-to-all" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-none">
+                <h5 class="modal-title">Reset confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <div class="delete-cat-image d-flex flex-column  align-items-center">
+
+                    <p class="text-center">Are you sure you want apply this value toppng all cells of this category?</p>
+                    <input type="hidden" id="cat-index-apply">
+                    <input type="hidden" id="value-apply">
+                    <input type="hidden" id="is-income-apply">
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <a type="submit" class="btn btn-primary" onclick="applyTOAll()">Yes</a>
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row p-3 ">
+    <div class="input-div rounded  p-2" style="background-color: #d7dcdd">
+        <div class="title-text text-color fs-3 fw-bold">Budget Calculator</div>
+        <div class="d-flex justify-content-start mb-2">
+            <div class="form-floating me-3">
+                <input type="date" id="startDate" placeholder="Start date" class="m-2 w-100 form-control p-2 ">
+                <label for="startDate"> Start Date</label>
+            </div>
+            <div class="form-floating me-3">
+                <input type="date" id="endDate" class="m-2 w-100 form-control p-2 " placeholder="End date">
+                <label for="endDate">End Date</label>
+            </div>
+            <div class="btn button-solid m-2 d-flex align-items-center" onclick="generate()">Generate</div>
+            <button class="btn btn-secondary m-2 d-flex align-items-center" id="reset-button-id" data-bs-toggle="modal"
+                data-bs-target="#reset-sheet" disabled>Reset</button>
+            <button class="btn btn-secondary m-2 d-flex align-items-center " id="export-id" onclick="ExportSheet()"
+                disabled>Export</button>
+            <div class="btn btn-secondary m-2 d-flex align-items-center" onclick="activityToggle()">Activity</div>
+
+
+        </div>
+    </div>
+
+    <div class="activity-main-div rounded mt-4 fs-3 fw-bold d-none" style="background-color: #d7dcdd">
+        <div class="text-color mt-2 mb-2 ">Recent Activity <span class="btn ms-3 btn-secondary " onclick="ExportActivity()">Export</span></div>
+        <ul id="activity-list">
+
+        </ul>
+    </div>
+
+    <div class="data-entries  rounded mt-4 " style="background-color: #d7dcdd">
+        <div id="Budget-Sheet-data" class="table-main-div">
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        var startDate = document.getElementById("startDate").value;
+        var endDate = document.getElementById("endDate").value;
+        var monthArray = [];
+        var demoLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var datasheetVM;
+        var timeArray = [];
+        var colorArray = [];
+        var messageArray = [];
+
+        //check validation of dates input and call generate sheet
+        function generate() {
+            startDate = document.getElementById("startDate").value;
+            endDate = document.getElementById("endDate").value;
+
+            if (!startDate || !endDate) {
+                errorToaster("Please select both start date and end date.");
+                return;
+            }
+
+            if (endDate < startDate) {
+                errorToaster("End date should be greater than Start date.");
+                document.getElementById("endDate").value = "";
+                return;
+            }
+            generateMonths(startDate, endDate);
+        }
+
+        //calculate months from start and end datee
+        function generateMonths(srartDate, endDate) {
+            monthArray = [];
+
+            var startDateList = startDate.split("-")
+            var endDateList = endDate.split("-")
+
+            if (startDateList[0] != endDateList[0]) {
+                var differenceYear = parseInt(endDateList[0]) - parseInt(startDateList[0]);
+                console.log(differenceYear);
+                for (i = 0; i <= differenceYear; i++) {
+                    if (i == 0) {
+                        for (j = parseInt(startDateList[1]) - 1; j < demoLabels.length; j++) {
+                            monthArray.push(demoLabels[j] + "-" + (parseInt(startDateList[0]) + i).toString());
+                        }
+                    }
+                    else if (i == differenceYear) {
+                        for (j = 0; j < parseInt(endDateList[1]); j++) {
+                            monthArray.push(demoLabels[j] + "-" + (parseInt(startDateList[0]) + i).toString());
+                        }
+                    }
+                    else {
+                        for (j = 0; j < demoLabels.length; j++) {
+                            monthArray.push(demoLabels[j] + "-" + (parseInt(startDateList[0]) + i).toString())
+                        }
+                    }
+
+                }
+
+            }
+            else if (startDateList[0] == endDateList[0]) {
+                for (let i = parseInt(startDateList[1]); i <= parseInt(endDateList[1]); i++) {
+                    monthArray.push(demoLabels[i - 1] + "-" + startDateList[0]);
+                }
+            }
+            generateBudgetSheet();
+
+        }
+
+        //generate budget sheet - render partial view of sheet
+        function generateBudgetSheet() {
+            
+            $.ajax({
+                url: "/BudgetBuilder/GenerateBudgetSheet",
+                type: "GET",
+                data: {
+                    monthList: JSON.stringify(monthArray)
+
+                },
+                success: function (response) {
+                    $("#Budget-Sheet-data").html(response);
+                    successToaster("Budget updated successfully");
+                    document.getElementById("export-id").removeAttribute("disabled");
+                    document.getElementById("reset-button-id").removeAttribute("disabled");
+
+                },
+            })
+        }
+
+        //set viewmodel when partial view loads
+        function datasheetData(datasheetData) {
+            datasheetVM = datasheetData;
+            console.log("datasheetVM", datasheetVM);
+        }
+
+        //update calculations
+        function updateBudgetSheet() {
+            for (i = 0; i < datasheetVM.monthList.length; i++) {
+                datasheetVM.totalIncome[i] = 0;
+                datasheetVM.totalExpense[i] = 0;
+                datasheetVM.profitLoss[i] = 0;
+                datasheetVM.openingBalance[i] = 0;
+                datasheetVM.closingBalance[i] = 0;
+            }
+            for (i = 0; i < datasheetVM.incomeCategoryList.length; i++) {
+                for (j = 0; j < datasheetVM.monthList.length; j++) {
+                    datasheetVM.totalIncome[j] += datasheetVM.incomeCategoryList[i].amount[j];
+                }
+            }
+            for (i = 0; i < datasheetVM.expenseCategoryList.length; i++) {
+                for (j = 0; j < datasheetVM.monthList.length; j++) {
+                    datasheetVM.totalExpense[j] += datasheetVM.expenseCategoryList[i].amount[j];
+                }
+            }
+
+            for (i = 0; i < datasheetVM.monthList.length; i++) {
+                datasheetVM.profitLoss[i] = datasheetVM.totalIncome[i] - datasheetVM.totalExpense[i];
+                if (i == 0) {
+                    datasheetVM.openingBalance[i] = 0;
+                }
+                else {
+                    datasheetVM.openingBalance[i] = datasheetVM.closingBalance[i - 1];
+                }
+                datasheetVM.closingBalance[i] = datasheetVM.openingBalance[i] + datasheetVM.profitLoss[i];
+
+
+                //update in UI
+                document.querySelectorAll(".TotalIncome")[i].value = datasheetVM.totalIncome[i];
+                document.querySelectorAll(".TotalExpense")[i].value = datasheetVM.totalExpense[i];
+                document.querySelectorAll(".ProfitLoss")[i].value = datasheetVM.profitLoss[i];
+                document.querySelectorAll(".OpeningBalance")[i].value = datasheetVM.openingBalance[i];
+                document.querySelectorAll(".ClosingBalance")[i].value = datasheetVM.closingBalance[i];
+                
+            }
+        }
+
+        //delete category
+        function deleteCategory() {
+            var index = document.getElementById("cat-index").value;
+            var isIncome = document.getElementById("is-income").value == "true" ? true : false;
+            var catgeoryName = isIncome ? datasheetVM.incomeCategoryList[index].catgeoryName : datasheetVM.expenseCategoryList[index].catgeoryName;
+            var section = isIncome ? "Income" : "Expense";
+            $.ajax({
+                url: "/BudgetBuilder/DeleteCategory",
+                type: "GET",
+                data: {
+                    index: index,
+                    isIncome: isIncome,
+                    datasheetVM: JSON.stringify(datasheetVM)
+                },
+                success: function (response) {
+                    $("#Budget-Sheet-data").html(response);
+                    setTimeout(function () {
+                        fillActivityArray("red", `${catgeoryName} category is deleted from ${section} Section`);
+                        updateBudgetSheet();
+                    }, 1000);
+
+                    successToaster("Category deleted successfully");
+                    $('.btn-close').click();
+                },
+                error: function (error) {
+                    errorToaster("Error deleting category");
+                }
+            })
+        }
+
+        //add new category
+        function addCategory(isIncome) {
+            $.ajax({
+                url: "/BudgetBuilder/AddCategory",
+                type: "GET",
+                data: {
+                    isIncome: isIncome,
+                    datasheetVM: JSON.stringify(datasheetVM)
+                },
+                success: function (response) {
+                    $("#Budget-Sheet-data").html(response);
+                    if (isIncome) {
+                        document.getElementsByClassName("IncomeName")[datasheetVM.incomeCategoryList.length].focus();
+                    } else {
+                        document.getElementsByClassName("ExpenseName")[datasheetVM.expenseCategoryList.length].focus();
+                    }
+                }
+            })
+        }
+
+        //reset budget sheet
+        function resetSheet() {
+            ExportSheet();
+            document.getElementById("export-id").setAttribute("disabled", "disabled");
+            document.getElementById("reset-button-id").setAttribute("disabled", "disabled");
+
+            document.getElementById("startDate").value = "";
+            document.getElementById("endDate").value = "";
+            monthArray = [];
+            datasheetVM = {
+                monthList: [],
+                incomeCategoryList: [],
+                expenseCategoryList: [],
+                totalIncome: [],
+                totalExpense: [],
+                profitLoss: [],
+                openingBalance: [],
+                closingBalance: []
+            };
+            $("#Budget-Sheet-data").html("");
+            $(".btn-close").click();
+            successToaster("Budget sheet reset successfully");
+        }
+
+        //apply value to all months
+        function applyTOAll() {
+            var catIndex = document.getElementById("cat-index-apply").value;
+            var value = document.getElementById("value-apply").value;
+            var isincome = document.getElementById("is-income-apply").value;
+            console.log("1", catIndex, "2. ", value, "3. ", isincome)
+            if (isincome == "true") {
+                for (i = 0; i < datasheetVM.monthList.length; i++) {
+                    console.log(datasheetVM.incomeCategoryList[catIndex].amount[i])
+                    datasheetVM.incomeCategoryList[catIndex].amount[i] = value;
+
+                }
+            } else {
+                for (i = 0; i < datasheetVM.monthList.length; i++) {
+                    datasheetVM.expenseCategoryList[catIndex].amount[i] = value;
+
+                }
+            }
+            updateBudgetSheet();
+            $.ajax({
+                url: "/BudgetBuilder/UpdatePartialView",
+                type: "GET",
+                data: { datasheetVM: JSON.stringify(datasheetVM) },
+                success: function (response) {
+                    $("#Budget-Sheet-data").html(response);
+                    $(".btn-close").click();
+                }
+            })
+
+        }
+
+        //export data to excel
+        function ExportSheet() {
+            $.ajax({
+                url: "/BudgetBuilder/ExportDataToExcel",
+                type: "GET",
+                data: { datasheetVM: JSON.stringify(datasheetVM) },
+                xhrFields: {
+                    responseType: 'blob' //binary large object -- to handle binary response
+                },
+                success: function (data, status, xhr) {
+                    let filename = "BudgetSheet.xlsx";
+
+                    let disposition = xhr.getResponseHeader('Content-Disposition');
+                    @* console.log("disp", disposition); *@
+                                                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        let matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition); //ExportOrderDataToExcel filename From disposition
+                        if (matches && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, ''); // Remove quotes if present
+                        }
+                    }
+
+                    let blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                    let link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob); //timePeriod url points to blob obj
+                    link.download = filename; //Download file name
+                    document.body.appendChild(link); //appendChild so that it Cancelled be cliked
+                    link.click();
+                    document.body.removeChild(link);
+
+                    successToaster("Exported Successfully");
+                    console.log("Export Successfully");
+                }
+
+            });
+        }
+
+        function ExportActivity(){
+            $.ajax({
+                url: "/BudgetBuilder/ExportActivityToExcel",
+                type: "GET",
+                data: {timeArray: JSON.stringify(timeArray), colorArray: JSON.stringify(colorArray), messageArray: JSON.stringify(messageArray)},
+                xhrFields: {
+                    responseType: 'blob' //binary large object -- to handle binary response
+                },
+                success: function (data, status, xhr) {
+                    let filename = "User Activity.xlsx";
+
+                    let disposition = xhr.getResponseHeader('Content-Disposition');
+                    @* console.log("disp", disposition); *@
+                                                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        let matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition); //ExportOrderDataToExcel filename From disposition
+                        if (matches && matches[1]) {
+                            filename = matches[1].replace(/['"]/g, ''); // Remove quotes if present
+                        }
+                    }
+
+                    let blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                    let link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob); //timePeriod url points to blob obj
+                    link.download = filename; //Download file name
+                    document.body.appendChild(link); //appendChild so that it Cancelled be cliked
+                    link.click();
+                    document.body.removeChild(link);
+
+                    successToaster("Exported Successfully");
+                    console.log("Export Successfully");
+                }
+
+            });
+        
+        }
+
+        //user activity
+        function fillActivityArray(color, messgae) {
+            var today = new Date();
+            var date = today.toLocaleDateString("en-US");
+            var time = today.toLocaleTimeString("en-US");
+            var currentTime = date + " " + time;
+
+            timeArray.push(currentTime);
+            colorArray.push(color);
+            messageArray.push(messgae);
+        }
+
+        //activity toggle
+        function activityToggle() {
+            document.getElementsByClassName("activity-main-div")[0].classList.toggle("d-none");
+            if (document.getElementsByClassName("activity-main-div")[0].classList.contains("d-none")) {
+                $(".inputClass").prop("disabled",false);
+            } else {
+                $(".inputClass").prop("disabled", true);
+            }
+            displayActivity();
+        }
+
+        //display activity
+        function displayActivity() {
+
+            var activityList = document.getElementById("activity-list");
+            activityList.innerHTML = "";
+
+            if (timeArray.length == 0) {
+                activityList.innerHTML = `<li style="list-style: none; display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;">No Activity Found</li>`;
+                document.getElementById("activity-list").innerHTML = activityList.innerHTML;
+                return;
+            }
+            for (var i = 0; i < timeArray.length; i++) {
+
+                activityList.innerHTML += `<li style="list-style: none; display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;">
+                                <span class="text-secondary me-3 ">${timeArray[i]}</span>
+                                <span class="dot ${colorArray[i]} me-3"></span>
+                                <span class="">${messageArray[i]}</span>
+                            </li>`;
+            }
+            document.getElementById("activity-list").innerHTML = activityList.innerHTML;
+        }
+
+    </script>
+
+
+
+    <script>
+
+        $(document).ready(function () {
+
+
+            //start date validations
+            $("#startDate").on("change", function () {
+                startDate = document.getElementById("startDate").value;
+                endDateInput = document.getElementById("endDate").value;
+
+                if (endDateInput == "") return;
+                if (endDateInput < startDate) {
+                    errorToaster("End date should be greater than Start date.");
+                    endDate = "";
+                    document.getElementById("endDate").value = "";
+                }
+            })
+
+            //enddate validations
+            $("#endDate").on("change", function () {
+                startDate = document.getElementById("startDate").value;
+                endDate = document.getElementById("endDate").value;
+
+                if (endDate < startDate) {
+                    errorToaster("End date should be greater than Start date");
+                    document.getElementById("endDate").value = "";
+                    endDate = "";
+                }
+            })
+
+            //change income category name
+            $(document).on("input", ".IncomeName", function () {
+                var catIndex = $(this).data("incomeindex");
+                var value = $(this).val();
+                for (i = 0; i < datasheetVM.incomeCategoryList.length; i++) {
+                    if (datasheetVM.incomeCategoryList[i].catgeoryName == value) {
+                        errorToaster("Category Already exist.")
+                        this.value = "";
+                        value = "";
+                        this.focus();
+                    }
+                }
+                datasheetVM.incomeCategoryList[catIndex].catgeoryName = value;
+                updateBudgetSheet();
+
+            });
+
+            //disable income name category
+            $(document).on("change", ".IncomeName", function () {
+                var value = $(this).val();
+                this.setAttribute("disabled", "disabled");
+                fillActivityArray("green", `${value} category is Added under Income Section `);
+            });
+
+            //change expense category name
+            $(document).on("input", ".ExpenseName", function () {
+                var catIndex = $(this).data("expenseindex");
+                var value = $(this).val();
+                for (i = 0; i < datasheetVM.expenseCategoryList.length; i++) {
+                    if (datasheetVM.expenseCategoryList[i].catgeoryName == value) {
+                        errorToaster("Category Already exist.")
+                        this.value = "";
+                        value = "";
+                        this.focus();
+                    }
+                }
+                datasheetVM.expenseCategoryList[catIndex].catgeoryName = value;
+                updateBudgetSheet();
+            });
+
+            //disable expense name category
+            $(document).on("change", ".ExpenseName", function () {
+                var value = $(this).val();
+                this.setAttribute("disabled", "disabled");
+                fillActivityArray("green", `${value} category is Added under Expense Section `);
+            });
+
+            //change income input
+            $(document).on("input", ".IncomeInput", function () {
+                var amountindex = $(this).data("month");
+                var catIndex = $(this).data("incomeindex");
+                var value = $(this).val() == "" ? 0 : $(this).val();
+                this.value = $(this).val() == "" ? 0 : $(this).val();
+
+                datasheetVM.incomeCategoryList[catIndex].amount[amountindex] = parseInt(value);
+                updateBudgetSheet();
+            });
+
+            //change expense input
+            $(document).on("input", ".ExpenseInput", function () {
+                var amountindex = $(this).data("month");
+                var catIndex = $(this).data("expenseindex");
+                var value = $(this).val() == "" ? 0 : $(this).val();
+                this.value = $(this).val() == "" ? 0 : $(this).val();
+                datasheetVM.expenseCategoryList[catIndex].amount[amountindex] = parseInt(value);
+                updateBudgetSheet();
+            });
+
+            $(document).on("change", ".IncomeInput", function () {
+                amountindex = $(this).data("month");
+                var catIndex = $(this).data("incomeindex");
+                var value = $(this).val() == "" ? 0 : $(this).val();
+                console.log("amountindex", amountindex, "catIndex", catIndex, "value", value);
+
+                var catgeoryName = datasheetVM.incomeCategoryList[catIndex].catgeoryName;
+                fillActivityArray("green", `${value} Rs has benn added to ${catgeoryName} for Income ${monthArray[amountindex]}`);
+            });
+
+            $(document).on("change", ".ExpenseInput", function () {
+                amountindex = $(this).data("month");
+                var catIndex = $(this).data("expenseindex");
+                var value = $(this).val() == "" ? 0 : $(this).val();
+                console.log("amountindex", amountindex, "catIndex", catIndex, "value", value);
+                var catgeoryName = datasheetVM.expenseCategoryList[catIndex].catgeoryName;
+                fillActivityArray("green", `${value} Rs has benn added to ${catgeoryName} for Expense ${monthArray[amountindex]}`);
+            });
+
+            //delete category
+            $(document).on("click", ".deletedata", function () {
+                var index = $(this).data("index");
+                var isIncome = $(this).data("isincome");
+                document.getElementById("cat-index").value = index;
+                document.getElementById("is-income").value = isIncome;
+                $("#delete-category").modal("show");
+            });
+
+            //add new category on enter key press or update if not
+            $(document).on("keydown", ".inputClass", function (e) {
+                if (e.keyCode == 13) {
+                    if (e.target.classList.contains("IncomeName") || e.target.classList.contains("IncomeInput")) {
+                        if (datasheetVM.incomeCategoryList[datasheetVM.incomeCategoryList.length - 1].catgeoryName == "") {
+                            document.getElementsByClassName("IncomeName")[datasheetVM.incomeCategoryList.length - 1].focus();
+                        } else {
+                            addCategory(true);
+                        }
+                    } else {
+                        if (datasheetVM.expenseCategoryList[datasheetVM.expenseCategoryList.length - 1].catgeoryName == "") {
+                            document.getElementsByClassName("ExpenseName")[datasheetVM.expenseCategoryList.length - 1].focus();
+                        } else {
+                            addCategory(false);
+                        }
+                    }
+                } else {
+                    updateBudgetSheet();
+                }
+            });
+
+            //applu to all when right clicked
+            $(document).on("contextmenu", ".input-data-number", function (e) {
+                e.preventDefault();
+                var catIndex = $(this).data("expenseindex") || $(this).data("incomeindex");
+                var value = $(this).val();
+
+                $("#apply-to-all").modal("show");
+                document.getElementById("cat-index-apply").value = catIndex;
+                document.getElementById("value-apply").value = value;
+                if (this.classList.contains("IncomeInput")) {
+                    document.getElementById("is-income-apply").value = true;
+                } else {
+                    document.getElementById("is-income-apply").value = false;
+                }
+            })
+
+
+        })
+    </script>
+
+    <partial name="_Toaster" />
+}

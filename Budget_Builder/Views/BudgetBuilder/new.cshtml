@@ -1,0 +1,752 @@
+```html
+@model Budget_Builder.Models.DataViewModel
+@{
+    ViewData["Title"] = "Budget Builder";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Builder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .table-container { max-width: 100%; overflow-x: auto; }
+        .table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
+        th { background-color: #f8f9fa; }
+        .inputClass { width: 100%; border: none; background: transparent; text-align: center; }
+        .inputClass:focus { outline: none; background: #f0f0f0; }
+        .headcol { text-align: left; font-weight: bold; }
+        .subcol { text-align: center; }
+        .text-danger { cursor: pointer; }
+        .chart-container { max-width: 800px; margin: 20px auto; }
+        .activity-main-div { padding: 10px; }
+        .dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; }
+        .dot.red { background-color: red; }
+        .dot.green { background-color: green; }
+        
+    </style>
+</head>
+<body>
+    <div class="container p-3">
+        <div class="input-div rounded p-2" style="background-color: #d7dcdd">
+            <div class="title-text text-color fs-3 fw-bold">Budget Calculator</div>
+            <div class="d-flex justify-content-start mb-2 flex-wrap gap-2">
+                <div class="form-floating">
+                    <input type="date" id="startDate" class="m-2 w-100 form-control p-2" placeholder="Start date">
+                    <label for="startDate">Start Date</label>
+                </div>
+                <div class="form-floating">
+                    <input type="date" id="endDate" class="m-2 w-100 form-control p-2" placeholder="End date">
+                    <label for="endDate">End Date</label>
+                </div>
+                <div class="btn btn-primary m-2 d-flex align-items-center" onclick="generate()">Generate</div>
+                <button class="btn btn-secondary m-2 d-flex align-items-center" id="reset-button-id" data-bs-toggle="modal" data-bs-target="#reset-sheet" disabled>Reset</button>
+                <button class="btn btn-secondary m-2 d-flex align-items-center" id="export-id" onclick="ExportSheet()" disabled>Export</button>
+                <div class="btn btn-secondary m-2 d-flex align-items-center" onclick="activityToggle()">Activity</div>
+            </div>
+        </div>
+
+        <div class="activity-main-div rounded mt-4 fs-3 fw-bold d-none" style="background-color: #d7dcdd">
+            <div class="text-color mt-2 mb-2">Recent Activity <span class="btn ms-3 btn-secondary" onclick="ExportActivity()">Export</span></div>
+            <ul id="activity-list"></ul>
+        </div>
+
+        <div class="data-entries rounded mt-4" style="background-color: #d7dcdd">
+            <div id="Budget-Sheet-data" class="table-main-div table-container"></div>
+            <div class="chart-container">
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="delete-category" class="modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Confirmation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="delete-cat-image d-flex flex-column align-items-center">
+                            <img src="../images/toppng.com-warning-icon-2400x2400.png" width="50px" alt="">
+                            <p>Are you sure you want to delete this category?</p>
+                            <input type="hidden" id="cat-index">
+                            <input type="hidden" id="is-income">
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <a class="btn btn-primary" onclick="deleteCategory()">Yes</a>
+                        <button class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reset-sheet" class="modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reset Confirmation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="delete-cat-image d-flex flex-column align-items-center">
+                            <p>Are you sure you want to reset the sheet?</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <a class="btn btn-primary" onclick="resetSheet()">Yes</a>
+                        <button class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="apply-to-all" class="modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="delete-cat-image d-flex flex-column align-items-center">
+                            <p class="text-center">Are you sure you want to apply this value to all cells of this category?</p>
+                            <input type="hidden" id="cat-index-apply">
+                            <input type="hidden" id="value-apply">
+                            <input type="hidden" id="is-income-apply">
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <a class="btn btn-primary" onclick="applyToAll()">Yes</a>
+                        <button class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let datasheetVM = {
+            MonthList: [],
+            IncomeCategoryList: [],
+            ExpenseCategoryList: [],
+            TotalIncome: [],
+            TotalExpense: [],
+            ProfitLoss: [],
+            OpeningBalance: [],
+            ClosingBalance: []
+        };
+        let monthArray = [];
+        let timeArray = [];
+        let colorArray = [];
+        let messageArray = [];
+        let demoLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let chart = null;
+
+        // Initialize Chart.js
+        function initializeChart() {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Income', data: [], borderColor: 'green', fill: false },
+                        { label: 'Expenses', data: [], borderColor: 'red', fill: false },
+                        { label: 'Profit/Loss', data: [], borderColor: 'blue', fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // Generate months from start and end date
+        function generateMonths(startDate, endDate) {
+            monthArray = [];
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            while (start <= end) {
+                monthArray.push(`${demoLabels[start.getMonth()]}-${start.getFullYear()}`);
+                start.setMonth(start.getMonth() + 1);
+            }
+        }
+
+        // Generate budget sheet (initial AJAX call)
+        function generate() {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+
+            if (!startDate || !endDate) {
+                errorToaster("Please select both start date and end date.");
+                return;
+            }
+            if (endDate < startDate) {
+                errorToaster("End date should be greater than start date.");
+                document.getElementById("endDate").value = "";
+                return;
+            }
+
+            generateMonths(startDate, endDate);
+
+            $.ajax({
+                url: "/BudgetBuilder/GenerateBudgetSheet",
+                type: "GET",
+                data: { monthList: JSON.stringify(monthArray) },
+                dataType: "json",
+                success: function (response) {
+                    try {
+                        datasheetVM = response;
+                        monthArray = datasheetVM.MonthList;
+                        updateBudgetSheet();
+                        renderTable();
+                        document.getElementById("export-id").removeAttribute("disabled");
+                        document.getElementById("reset-button-id").removeAttribute("disabled");
+                        successToaster("Budget updated successfully");
+                        initializeChart();
+                        updateChart();
+                    } catch (e) {
+                        console.error("Error processing response:", e);
+                        errorToaster("Invalid response format from server.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", xhr.responseText, status, error);
+                    errorToaster("Failed to load budget data.");
+                }
+            });
+        }
+
+        // Update calculations
+        function updateBudgetSheet() {
+            datasheetVM.TotalIncome = Array(datasheetVM.MonthList.length).fill(0);
+            datasheetVM.TotalExpense = Array(datasheetVM.MonthList.length).fill(0);
+            datasheetVM.ProfitLoss = Array(datasheetVM.MonthList.length).fill(0);
+            datasheetVM.OpeningBalance = Array(datasheetVM.MonthList.length).fill(0);
+            datasheetVM.ClosingBalance = Array(datasheetVM.MonthList.length).fill(0);
+
+            datasheetVM.IncomeCategoryList.forEach(cat => {
+                cat.Amount.forEach((val, i) => {
+                    datasheetVM.TotalIncome[i] += parseFloat(val) || 0;
+                });
+            });
+
+            datasheetVM.ExpenseCategoryList.forEach(cat => {
+                cat.Amount.forEach((val, i) => {
+                    datasheetVM.TotalExpense[i] += parseFloat(val) || 0;
+                });
+            });
+
+            datasheetVM.ProfitLoss = datasheetVM.TotalIncome.map((inc, i) => inc - datasheetVM.TotalExpense[i]);
+            datasheetVM.OpeningBalance[0] = 0;
+            datasheetVM.ClosingBalance[0] = datasheetVM.ProfitLoss[0];
+            for (let i = 1; i < datasheetVM.MonthList.length; i++) {
+                datasheetVM.OpeningBalance[i] = datasheetVM.ClosingBalance[i - 1];
+                datasheetVM.ClosingBalance[i] = datasheetVM.OpeningBalance[i] + datasheetVM.ProfitLoss[i];
+            }
+
+            // Update total rows in the DOM
+            document.querySelectorAll(".TotalIncome").forEach((input, i) => {
+                input.value = datasheetVM.TotalIncome[i];
+            });
+            document.querySelectorAll(".TotalExpense").forEach((input, i) => {
+                input.value = datasheetVM.TotalExpense[i];
+            });
+            document.querySelectorAll(".ProfitLoss").forEach((input, i) => {
+                input.value = datasheetVM.ProfitLoss[i];
+            });
+            document.querySelectorAll(".OpeningBalance").forEach((input, i) => {
+                input.value = datasheetVM.OpeningBalance[i];
+            });
+            document.querySelectorAll(".ClosingBalance").forEach((input, i) => {
+                input.value = datasheetVM.ClosingBalance[i];
+            });
+        }
+
+        // Render table dynamically (only called when structure changes)
+        function renderTable() {
+            const container = document.getElementById("Budget-Sheet-data");
+            container.innerHTML = ''; // Clear existing table to prevent duplication
+            let html = `
+                <table id="example" class="table display">
+                    <thead>
+                        <tr>
+                            <th class="headcol">Category</th>
+                            ${datasheetVM.MonthList.map(month => `<th class="text-center subcol">${month}</th>`).join('')}
+                            <th class="text-center subcol">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Income Section -->
+                        ${datasheetVM.IncomeCategoryList.map((income, index) => `
+                            <tr>
+                                <td class="headcol">
+                                    <input type="text" placeholder="Enter Income" value="${income.CatgeoryName}"
+                                        data-incomeindex="${index}" class="IncomeName inputClass"
+                                        ${income.CatgeoryName ? 'disabled' : ''}>
+                                </td>
+                                ${income.Amount.map((val, i) => `
+                                    <td class="text-center subcol">
+                                        <input type="number" value="${val}" class="IncomeInput inputClass input-data-number"
+                                            data-month="${i}" data-incomeindex="${index}">
+                                    </td>
+                                `).join('')}
+                                <td class="text-center subcol">
+                                    <i class="bi bi-trash text-danger deletedata inputClass"
+                                        data-index="${index}" data-isincome="true"></i>
+                                </td>
+                            </tr>
+                        `).join('')}
+                        <!-- Total Income -->
+                        <tr>
+                            <td class="fw-bold headcol">Total Income</td>
+                            ${datasheetVM.TotalIncome.map(val => `
+                                <td class="text-center subcol"><input type="text" value="${val}" disabled class="TotalIncome"></td>
+                            `).join('')}
+                            <td class="subcol"></td>
+                        </tr>
+                        <!-- Expense Section -->
+                        <tr>
+                            <td class="fw-bold headcol">Expense</td>
+                            <td colspan="${datasheetVM.MonthList.length}" class="subcol"></td>
+                            <td class="subcol"></td>
+                        </tr>
+                        ${datasheetVM.ExpenseCategoryList.map((expense, index) => `
+                            <tr>
+                                <td class="headcol">
+                                    <input type="text" placeholder="Enter Expense" value="${expense.CatgeoryName}"
+                                        data-expenseindex="${index}" class="ExpenseName inputClass"
+                                        ${expense.CatgeoryName ? 'disabled' : ''}>
+                                </td>
+                                ${expense.Amount.map((val, i) => `
+                                    <td class="text-center subcol">
+                                        <input type="number" value="${val}" class="ExpenseInput inputClass input-data-number"
+                                            data-month="${i}" data-expenseindex="${index}">
+                                    </td>
+                                `).join('')}
+                                <td class="text-center subcol">
+                                    <i class="bi bi-trash text-danger deletedata inputClass"
+                                        data-index="${index}" data-isincome="false"></i>
+                                </td>
+                            </tr>
+                        `).join('')}
+                        <!-- Total Expense -->
+                        <tr>
+                            <td class="fw-bold headcol">Total Expense</td>
+                            ${datasheetVM.TotalExpense.map(val => `
+                                <td class="text-center subcol"><input type="text" value="${val}" disabled class="TotalExpense"></td>
+                            `).join('')}
+                            <td class="subcol"></td>
+                        </tr>
+                        <!-- Summary -->
+                        <tr>
+                            <td class="fw-bold headcol">Summary</td>
+                            <td colspan="${datasheetVM.MonthList.length}" class="subcol"></td>
+                            <td class="subcol"></td>
+                        </tr>
+                        <!-- Profit/Loss -->
+                        <tr>
+                            <td class="fw-bold headcol">Profit/Loss</td>
+                            ${datasheetVM.ProfitLoss.map(val => `
+                                <td class="text-center subcol"><input type="text" value="${val}" disabled class="ProfitLoss"></td>
+                            `).join('')}
+                            <td class="subcol"></td>
+                        </tr>
+                        <!-- Opening Balance -->
+                        <tr>
+                            <td class="fw-bold headcol">Opening Balance</td>
+                            ${datasheetVM.OpeningBalance.map(val => `
+                                <td class="text-center subcol"><input type="text" value="${val}" disabled class="OpeningBalance"></td>
+                            `).join('')}
+                            <td class="subcol"></td>
+                        </tr>
+                        <!-- Closing Balance -->
+                        <tr>
+                            <td class="fw-bold headcol">Closing Balance</td>
+                            ${datasheetVM.ClosingBalance.map(val => `
+                                <td class="text-center subcol"><input type="text" value="${val}" disabled class="ClosingBalance"></td>
+                            `).join('')}
+                            <td class="subcol"></td>
+                        </tr>
+                    </tbody>
+                </table>`;
+            container.innerHTML = html;
+            updateChart();
+        }
+
+        // Update chart
+        function updateChart() {
+            if (chart) {
+                chart.data.labels = datasheetVM.MonthList;
+                chart.data.datasets[0].data = datasheetVM.TotalIncome;
+                chart.data.datasets[1].data = datasheetVM.TotalExpense;
+                chart.data.datasets[2].data = datasheetVM.ProfitLoss;
+                chart.update();
+            }
+        }
+
+        // Delete category
+        function deleteCategory() {
+            const index = parseInt(document.getElementById("cat-index").value);
+            const isIncome = document.getElementById("is-income").value === "true";
+            const categoryName = isIncome
+                ? datasheetVM.IncomeCategoryList[index].CatgeoryName
+                : datasheetVM.ExpenseCategoryList[index].CatgeoryName;
+            const section = isIncome ? "Income" : "Expense";
+
+            if (isIncome) {
+                datasheetVM.IncomeCategoryList.splice(index, 1);
+                if (datasheetVM.IncomeCategoryList.length === 0) {
+                    datasheetVM.IncomeCategoryList.push({ CatgeoryName: '', Amount: Array(datasheetVM.MonthList.length).fill(0) });
+                }
+            } else {
+                datasheetVM.ExpenseCategoryList.splice(index, 1);
+                if (datasheetVM.ExpenseCategoryList.length === 0) {
+                    datasheetVM.ExpenseCategoryList.push({ CatgeoryName: '', Amount: Array(datasheetVM.MonthList.length).fill(0) });
+                }
+            }
+            updateBudgetSheet();
+            renderTable(); // Re-render since structure changed
+            fillActivityArray("red", `${categoryName} category is deleted from ${section} Section`);
+            successToaster("Category deleted successfully");
+            $('.btn-close').click();
+        }
+
+        // Add new category
+        function addCategory(isIncome) {
+            const newCategory = { CatgeoryName: '', Amount: Array(datasheetVM.MonthList.length).fill(0) };
+            if (isIncome) {
+                datasheetVM.IncomeCategoryList.push(newCategory);
+            } else {
+                datasheetVM.ExpenseCategoryList.push(newCategory);
+            }
+            renderTable(); // Re-render since structure changed
+            const index = isIncome ? datasheetVM.IncomeCategoryList.length - 1 : datasheetVM.ExpenseCategoryList.length - 1;
+            const input = document.querySelector(`[data-${isIncome ? 'incomeindex' : 'expenseindex'}="${index}"]`);
+            if (input) input.focus();
+        }
+
+        // Reset budget sheet
+        function resetSheet() {
+            ExportSheet();
+            document.getElementById("startDate").value = "";
+            document.getElementById("endDate").value = "";
+            document.getElementById("export-id").setAttribute("disabled", "disabled");
+            document.getElementById("reset-button-id").setAttribute("disabled", "disabled");
+            monthArray = [];
+            datasheetVM = {
+                MonthList: [],
+                IncomeCategoryList: [],
+                ExpenseCategoryList: [],
+                TotalIncome: [],
+                TotalExpense: [],
+                ProfitLoss: [],
+                OpeningBalance: [],
+                ClosingBalance: []
+            };
+            document.getElementById("Budget-Sheet-data").innerHTML = "";
+            if (chart) chart.destroy();
+            successToaster("Budget sheet reset successfully");
+            $('.btn-close').click();
+        }
+
+        // Apply value to all months
+        function applyToAll() {
+            const catIndex = parseInt(document.getElementById("cat-index-apply").value);
+            const value = parseFloat(document.getElementById("value-apply").value) || 0;
+            const isIncome = document.getElementById("is-income-apply").value === "true";
+            if (isIncome) {
+                datasheetVM.IncomeCategoryList[catIndex].Amount.fill(value);
+                // Update all inputs for this category
+                document.querySelectorAll(`.IncomeInput[data-incomeindex="${catIndex}"]`).forEach(input => {
+                    input.value = value;
+                });
+            } else {
+                datasheetVM.ExpenseCategoryList[catIndex].Amount.fill(value);
+                // Update all inputs for this category
+                document.querySelectorAll(`.ExpenseInput[data-expenseindex="${catIndex}"]`).forEach(input => {
+                    input.value = value;
+                });
+            }
+            updateBudgetSheet();
+            updateChart();
+            $('.btn-close').click();
+        }
+
+        // Export sheet to Excel
+        function ExportSheet() {
+            $.ajax({
+                url: "/BudgetBuilder/ExportDataToExcel",
+                type: "GET",
+                data: { datasheetVM: JSON.stringify(datasheetVM) },
+                xhrFields: { responseType: 'blob' },
+                success: function (data, status, xhr) {
+                    let filename = "BudgetSheet.xlsx";
+                    const disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+                    const blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    successToaster("Exported Successfully");
+                },
+                error: function () {
+                    errorToaster("Failed to export sheet.");
+                }
+            });
+        }
+
+        // Export activity to Excel
+        function ExportActivity() {
+            $.ajax({
+                url: "/BudgetBuilder/ExportActivityToExcel",
+                type: "GET",
+                data: {
+                    timeArray: JSON.stringify(timeArray),
+                    colorArray: JSON.stringify(colorArray),
+                    messageArray: JSON.stringify(messageArray)
+                },
+                xhrFields: { responseType: 'blob' },
+                success: function (data, status, xhr) {
+                    let filename = "ActivitySheet.xlsx";
+                    const disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+                    const blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    successToaster("Exported Successfully");
+                },
+                error: function () {
+                    errorToaster("Failed to export activity.");
+                }
+            });
+        }
+
+        // Log activity
+        function fillActivityArray(color, message) {
+            const today = new Date();
+            const date = today.toLocaleDateString("en-US");
+            const time = today.toLocaleTimeString("en-US");
+            const currentTime = `${date} ${time}`;
+            timeArray.push(currentTime);
+            colorArray.push(color);
+            messageArray.push(message);
+            displayActivity();
+        }
+
+        // Display activity
+        function displayActivity() {
+            const activityList = document.getElementById("activity-list");
+            activityList.innerHTML = timeArray.length === 0
+                ? `<li style="list-style: none; display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;">No Activity Found</li>`
+                : timeArray.map((time, i) => `
+                    <li style="list-style: none; display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;">
+                        <span class="text-secondary me-3">${time}</span>
+                        <span class="dot ${colorArray[i]} me-3"></span>
+                        <span>${messageArray[i]}</span>
+                    </li>
+                `).join('');
+        }
+
+        // Toggle activity panel
+        function activityToggle() {
+            const activityDiv = document.getElementsByClassName("activity-main-div")[0];
+            activityDiv.classList.toggle("d-none");
+            const inputs = document.querySelectorAll(".inputClass");
+            inputs.forEach(input => input.disabled = !activityDiv.classList.contains("d-none"));
+            displayActivity();
+        }
+
+        // Toaster functions (placeholders)
+        function successToaster(message) {
+            alert(message); // Replace with actual toaster implementation
+        }
+        function errorToaster(message) {
+            alert(message); // Replace with actual toaster implementation
+        }
+
+        // Event listeners
+        $(document).ready(function () {
+            initializeChart();
+
+            // Date validations
+            $("#startDate").on("change", function () {
+                const startDate = this.value;
+                const endDate = document.getElementById("endDate").value;
+                if (endDate && endDate < startDate) {
+                    errorToaster("End date should be greater than start date.");
+                    document.getElementById("endDate").value = "";
+                }
+            });
+
+            $("#endDate").on("change", function () {
+                const startDate = document.getElementById("startDate").value;
+                const endDate = this.value;
+                if (endDate < startDate) {
+                    errorToaster("End date should be greater than start date.");
+                    this.value = "";
+                }
+            });
+
+            // Income category name change
+            $(document).on("input", ".IncomeName", function () {
+                const catIndex = $(this).data("incomeindex");
+                const value = $(this).val();
+                if (datasheetVM.IncomeCategoryList.some((cat, i) => i !== catIndex && cat.CatgeoryName === value)) {
+                    errorToaster("Category already exists.");
+                    this.value = datasheetVM.IncomeCategoryList[catIndex].CatgeoryName || "";
+                    $(this).focus();
+                    return;
+                }
+                datasheetVM.IncomeCategoryList[catIndex].CatgeoryName = value;
+                // No re-render, only update this cell
+            });
+
+            $(document).on("change", ".IncomeName", function () {
+                const catIndex = $(this).data("incomeindex");
+                const value = $(this).val();
+                if (value) {
+                    this.setAttribute("disabled", "disabled");
+                    fillActivityArray("green", `${value} category is added under Income Section`);
+                }
+            });
+
+            // Expense category name change
+            $(document).on("input", ".ExpenseName", function () {
+                const catIndex = $(this).data("expenseindex");
+                const value = $(this).val();
+                if (datasheetVM.ExpenseCategoryList.some((cat, i) => i !== catIndex && cat.CatgeoryName === value)) {
+                    errorToaster("Category already exists.");
+                    this.value = datasheetVM.ExpenseCategoryList[catIndex].CatgeoryName || "";
+                    $(this).focus();
+                    return;
+                }
+                datasheetVM.ExpenseCategoryList[catIndex].CatgeoryName = value;
+                // No re-render, only update this cell
+            });
+
+            $(document).on("change", ".ExpenseName", function () {
+                const catIndex = $(this).data("expenseindex");
+                const value = $(this).val();
+                if (value) {
+                    this.setAttribute("disabled", "disabled");
+                    fillActivityArray("green", `${value} category is added under Expense Section`);
+                }
+            });
+
+            // Income input change
+            $(document).on("input", ".IncomeInput", function () {
+                const amountIndex = $(this).data("month");
+                const catIndex = $(this).data("incomeindex");
+                const value = parseFloat($(this).val()) || 0;
+                this.value = value; // Update the input directly
+                datasheetVM.IncomeCategoryList[catIndex].Amount[amountIndex] = value;
+                updateBudgetSheet();
+                updateChart();
+                // No re-render, only update this cell and totals
+            });
+
+            $(document).on("change", ".IncomeInput", function () {
+                const amountIndex = $(this).data("month");
+                const catIndex = $(this).data("incomeindex");
+                const value = parseFloat($(this).val()) || 0;
+                const categoryName = datasheetVM.IncomeCategoryList[catIndex].CatgeoryName;
+                fillActivityArray("green", `${value} Rs has been added to ${categoryName} for Income ${monthArray[amountIndex]}`);
+            });
+
+            // Expense input change
+            $(document).on("input", ".ExpenseInput", function () {
+                const amountIndex = $(this).data("month");
+                const catIndex = $(this).data("expenseindex");
+                const value = parseFloat($(this).val()) || 0;
+                this.value = value; // Update the input directly
+                datasheetVM.ExpenseCategoryList[catIndex].Amount[amountIndex] = value;
+                updateBudgetSheet();
+                updateChart();
+                // No re-render, only update this cell and totals
+            });
+
+            $(document).on("change", ".ExpenseInput", function () {
+                const amountIndex = $(this).data("month");
+                const catIndex = $(this).data("expenseindex");
+                const value = parseFloat($(this).val()) || 0;
+                const categoryName = datasheetVM.ExpenseCategoryList[catIndex].CatgeoryName;
+                fillActivityArray("green", `${value} Rs has been added to ${categoryName} for Expense ${monthArray[amountIndex]}`);
+            });
+
+            // Delete category
+            $(document).on("click", ".deletedata", function () {
+                const index = $(this).data("index");
+                const isIncome = $(this).data("isincome");
+                document.getElementById("cat-index").value = index;
+                document.getElementById("is-income").value = isIncome;
+                $("#delete-category").modal("show");
+            });
+
+            // Add category on Enter key or update
+            $(document).on("keydown", ".inputClass", function (e) {
+                if (e.keyCode === 13) {
+                    if (e.target.classList.contains("IncomeName") || e.target.classList.contains("IncomeInput")) {
+                        if (datasheetVM.IncomeCategoryList[datasheetVM.IncomeCategoryList.length - 1].CatgeoryName === "") {
+                            document.getElementsByClassName("IncomeName")[datasheetVM.IncomeCategoryList.length - 1].focus();
+                        } else {
+                            addCategory(true);
+                        }
+                    } else if (e.target.classList.contains("ExpenseName") || e.target.classList.contains("ExpenseInput")) {
+                        if (datasheetVM.ExpenseCategoryList[datasheetVM.ExpenseCategoryList.length - 1].CatgeoryName === "") {
+                            document.getElementsByClassName("ExpenseName")[datasheetVM.ExpenseCategoryList.length - 1].focus();
+                        } else {
+                            addCategory(false);
+                        }
+                    }
+                } else if (e.target.classList.contains("IncomeInput") || e.target.classList.contains("ExpenseInput")) {
+                    if (e.key === "Tab") {
+                        e.preventDefault();
+                        const amountIndex = parseInt($(this).data("month")) + 1;
+                        const catIndex = $(this).data("incomeindex") || $(this).data("expenseindex");
+                        const section = e.target.classList.contains("IncomeInput") ? "IncomeInput" : "ExpenseInput";
+                        const indexAttr = e.target.classList.contains("IncomeInput") ? "incomeindex" : "expenseindex";
+                        if (amountIndex < datasheetVM.MonthList.length) {
+                            const nextInput = document.querySelector(`.${section}[data-month="${amountIndex}"][data-${indexAttr}="${catIndex}"]`);
+                            if (nextInput) nextInput.focus();
+                        }
+                    }
+                }
+            });
+
+            // Apply to all on right-click
+            $(document).on("contextmenu", ".input-data-number", function (e) {
+                e.preventDefault();
+                const catIndex = $(this).data("expenseindex") || $(this).data("incomeindex");
+                const value = $(this).val();
+                $("#apply-to-all").modal("show");
+                document.getElementById("cat-index-apply").value = catIndex;
+                document.getElementById("value-apply").value = value;
+                document.getElementById("is-income-apply").value = this.classList.contains("IncomeInput");
+            });
+        });
+    </script>
+
+    <partial name="_Toaster" />
+</body>
+</html>
