@@ -81,6 +81,33 @@
     </div>
 </div>
 
+<div id="import-file-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <h5 class="modal-title">Import Excel file</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <div class="delete-cat-image d-flex flex-column  align-items-center">
+
+                    <p class="text-center">Select an Excel file to import your budget data.
+                        @* <br> Please ensure the file is in .xlsx format and follows the required structure.
+                        <br> The file should contain the following columns: Category, months
+                        <br> and Amount for both Income and Expense categories. *@
+                    </p>
+                    <input type="file" id="import-file-id"  accept=".xlsx ">
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex  justify-content-center">
+                <a type="submit" class="btn btn-primary" onclick="ImportFile()" style="width: 200px;">Import</a>
+                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"
+                    style="width: 200px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row p-3 ">
     <div class="input-div rounded  p-2" style="background-color: #d7dcdd">
@@ -104,9 +131,9 @@
 
 
         </div>
-        <div class="d-flex justify-content-start row ms-1"><input type="file" id="import-file-id" class="col-2">
+        <div class="d-flex justify-content-start row ms-1">
 
-            <button class="btn btn-secondary m-2 d-flex align-items-center col-2" onclick="ImportData()">Import</button>
+            <button class="btn btn-secondary m-2 d-flex align-items-center col-2"  data-bs-toggle="modal" data-bs-target="#import-file-modal">Import</button>
         </div>
     </div>
 
@@ -251,140 +278,140 @@
             BudgetSheetTable.innerHTML = "";
 
             var row = `<table id="example" class="table display">
-                                                                                                                                                                                                            <thead>
-                                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                                    <th class="headcol">Category</th>`
+                                                                                                                                                                                                                    <thead>
+                                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                                            <th class="headcol">Category</th>`
             datasheetVM.monthList.forEach((month) => {
                 row += `<th class="text-center subcol">${month}</th>`;
             })
             row += `<th class="text-center subcol">Delete</th>
-                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                    </thead>
-                                                                                                                                                                                                                    <tbody>
-                                                                                                            <!---------------------- expense ------------------>
-                                                                                                            <tr>
-                                                                                                                <td class="fw-bold headcol">Income</td>
-                                                                                                                <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
-                                                                                                            </tr>
-                                                                                                        </tbody>
+                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                            </thead>
+                                                                                                                                                                                                                            <tbody>
+                                                                                                                    <!---------------------- expense ------------------>
+                                                                                                                    <tr>
+                                                                                                                        <td class="fw-bold headcol">Income</td>
+                                                                                                                        <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
+                                                                                                                    </tr>
+                                                                                                                </tbody>
 
-                                                                                                                                                                                                                    <tbody id="income-data-id">`
+                                                                                                                                                                                                                            <tbody id="income-data-id">`
             datasheetVM.incomeCategoryList.forEach((income, incomeIndex) => {
                 row += `<tr>
-                                                                                                                                                                                                        <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
-                                                                                                                                                                                                                data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
+                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
+                                                                                                                                                                                                                        data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
                         "disabled")}></td>`
                 @* for (i = 0; i < datasheetVM.monthList.length; i++)
                 { *@
                     datasheetVM.monthList.forEach((month, i) => {
                         row += `<td  class="text-center subcol table-data-class"><input type="number" value="${income.amount[i]}" class="IncomeInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                        data-incomeindex="${incomeIndex}">
-                                                                                                                                                                                                                        <input type="hidden"  class="monthIncomeH" value="${i}">
-                                                                                                                                                                                                                        <input type="hidden" class="incomeindexH" value="${incomeIndex}">
-                                                                                                                                                                                                                        </td>`
+                                                                                                                                                                                                                                data-incomeindex="${incomeIndex}">
+                                                                                                                                                                                                                                <input type="hidden"  class="monthIncomeH" value="${i}">
+                                                                                                                                                                                                                                <input type="hidden" class="incomeindexH" value="${incomeIndex}">
+                                                                                                                                                                                                                                </td>`
                     })
                 row += `<td class="text-center subcol inputClass"><i class="bi bi-trash text-danger deletedata inputClass" data-index="${incomeIndex}"
-                                                                                                                                                                                                                data-isincome="true"></i>
-                                                                                                                                                                                                                <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
-                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                    </tr>`
+                                                                                                                                                                                                                        data-isincome="true"></i>
+                                                                                                                                                                                                                        <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
+                                                                                                                                                                                                                </td>
+                                                                                                                                                                                                            </tr>`
                 incomeIndex++;
             })
 
             row += `</tbody>
-                                                                                                                                                                                                        <tbody>
-                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                <td class="fw-bold headcol">Total Income</td>`
+                                                                                                                                                                                                                <tbody>
+                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                        <td class="fw-bold headcol">Total Income</td>`
             datasheetVM.totalIncome.forEach((income) => {
                 row += `<td  class="text-center subcol"><input type="text" value="${income}" disabled class="TotalIncome"></td>`;
             })
 
             row += `<td></td>
-                                                                                                                                                                                                </tr>
-                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                            <tbody>
-                                                                                                                                                                                                <!---------------------- expense ------------------>
-                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                    <td class="fw-bold headcol">Expense</td>
-                                                                                                                                                                                                    <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
-                                                                                                                                                                                                </tr>
-                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                            <tbody id="expense-data-id">`
+                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                    </tbody>
+                                                                                                                                                                                                    <tbody>
+                                                                                                                                                                                                        <!---------------------- expense ------------------>
+                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                            <td class="fw-bold headcol">Expense</td>
+                                                                                                                                                                                                            <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
+                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                    </tbody>
+                                                                                                                                                                                                    <tbody id="expense-data-id">`
 
 
 
             datasheetVM.expenseCategoryList.forEach((expense, expenseIndex) => {
                 row += `<tr >
-                                                                                                                                                                                                        <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
-                                                                                                                                                                                                                data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
+                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
+                                                                                                                                                                                                                        data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
                         "disabled")}></td>`
                 for (i = 0; i < datasheetVM.monthList.length; i++) {
                     row += `<td  class="text-center subcol table-data-class"><input type="number" value="${expense.amount[i]}" class="ExpenseInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                    data-expenseindex="${expenseIndex}">
-                                                                                                                                                                                                                    <input type="hidden"  class="monthExpenseH" value="${i}">
-                                                                                                                                                                                                                    <input type="hidden" class="expenseindexH" value="${expenseIndex}">
-                                                                                                                                                                                                                    </td>`
+                                                                                                                                                                                                                            data-expenseindex="${expenseIndex}">
+                                                                                                                                                                                                                            <input type="hidden"  class="monthExpenseH" value="${i}">
+                                                                                                                                                                                                                            <input type="hidden" class="expenseindexH" value="${expenseIndex}">
+                                                                                                                                                                                                                            </td>`
                 }
                 row += `<td class="text-center subcol "><i class="bi bi-trash text-danger deletedata inputClass" data-index="${expenseIndex}"
-                                                                                                                                                                                                                data-isincome="false"></i>
-                                                                                                                                                                                                                <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
-                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                    </tr>`
+                                                                                                                                                                                                                        data-isincome="false"></i>
+                                                                                                                                                                                                                        <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
+                                                                                                                                                                                                                </td>
+                                                                                                                                                                                                            </tr>`
                 expenseIndex++;
             })
 
             row += `</tbody>
-                                                                                                                                                                                                        <tbody>
-                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                <td class="fw-bold headcol">Total Expense</td>`
+                                                                                                                                                                                                                <tbody>
+                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                        <td class="fw-bold headcol">Total Expense</td>`
             datasheetVM.totalExpense.forEach((expense) => {
                 row += `<td  class="text-center subcol"><input type="text" value="${expense}" disabled class="TotalExpense"></td>`;
             })
             row += `<td class="subcol"></td>
-                                                                                                                                                                                        </tr>
-                                                                                                                                                                                    </tbody>
+                                                                                                                                                                                                </tr>
+                                                                                                                                                                                            </tbody>
 
-                                                                                                                                                                                    <tbody>
-                                                                                                                                                                                        <!-----------------------  summary title----------------->
-                                                                                                                                                                                        <tr>
-                                                                                                                                                                                            <td class="fw-bold headcol">Summary</td>
-                                                                                                                                                                                            <td colspan="${datasheetVM.monthList.length}" class="subcol"></td>
-                                                                                                                                                                                        </tr>
-                                                                                                                                                                                        <!-----------------------  Profit/Loss<---------------->
-                                                                                                                                                                                        <tr>
-                                                                                                                                                                                            <td class="fw-bold headcol">Profit/Loss</td>`
+                                                                                                                                                                                            <tbody>
+                                                                                                                                                                                                <!-----------------------  summary title----------------->
+                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                    <td class="fw-bold headcol">Summary</td>
+                                                                                                                                                                                                    <td colspan="${datasheetVM.monthList.length}" class="subcol"></td>
+                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                <!-----------------------  Profit/Loss<---------------->
+                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                    <td class="fw-bold headcol">Profit/Loss</td>`
 
             datasheetVM.profitLoss.forEach((profit) => {
                 row += `<td class="text-center subcol"><input type="text" value="${profit}" disabled class="ProfitLoss"></td>`;
             })
 
             row += `<td class="subcol"></td>
-                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                </tr>
 
-                                                                                                                                                                                        <!----------------------- Opening Balance----------------->
-                                                                                                                                                                                        <tr>
-                                                                                                                                                                                            <td class="fw-bold headcol">Opening Balance</td>`;
+                                                                                                                                                                                                <!----------------------- Opening Balance----------------->
+                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                    <td class="fw-bold headcol">Opening Balance</td>`;
 
             datasheetVM.openingBalance.forEach((opening) => {
                 row += `<td class="text-center subcol"><input type="text" value="${opening}" disabled class="OpeningBalance"></td>`;
             })
 
             row += `<td class="subcol"></td>
-                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                </tr>
 
-                                                                                                                                                                                        <!-----------------------Closing Balance----------------->
-                                                                                                                                                                                        <tr>
-                                                                                                                                                                                            <td class="fw-bold headcol">Closing Balance</td>`;
+                                                                                                                                                                                                <!-----------------------Closing Balance----------------->
+                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                    <td class="fw-bold headcol">Closing Balance</td>`;
 
             datasheetVM.closingBalance.forEach((closing) => {
                 row += `<td class="text-center subcol"><input type="text" value="${closing}" disabled class="ClosingBalance"></td>`;
             })
 
             row += `<td class="subcol"></td>
-                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                </tr>
 
-                                                                                                                                                                                    </tbody>
-                                                                                                                                                                                </table>`;
+                                                                                                                                                                                            </tbody>
+                                                                                                                                                                                        </table>`;
 
             BudgetSheetTable.innerHTML = row;
         }
@@ -449,22 +476,22 @@
                 var row = "";
                 datasheetVM.incomeCategoryList.forEach((income, incomeIndex) => {
                     row += `<tr>
-                                                                                                                                                                                                        <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
-                                                                                                                                                                                                                data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
+                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
+                                                                                                                                                                                                                        data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
                             "disabled")}></td>`
 
                     datasheetVM.monthList.forEach((month, i) => {
                         row += `<td  class="text-center subcol table-data-class"><input type="number" value="${income.amount[i]}" class="IncomeInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                        data-incomeindex="${incomeIndex}">
-                                                                                                                                                                                                                        <input type="hidden"  class="monthIncomeH" value="${i}">
-                                                                                                                                                                                                                        <input type="hidden" class="incomeindexH" value="${incomeIndex}">
-                                                                                                                                                                                                                        </td>`
+                                                                                                                                                                                                                                data-incomeindex="${incomeIndex}">
+                                                                                                                                                                                                                                <input type="hidden"  class="monthIncomeH" value="${i}">
+                                                                                                                                                                                                                                <input type="hidden" class="incomeindexH" value="${incomeIndex}">
+                                                                                                                                                                                                                                </td>`
                     })
                     row += `<td class="text-center subcol inputClass"><i class="bi bi-trash text-danger deletedata inputClass" data-index="${incomeIndex}"
-                                                                                                                                                                                                                data-isincome="true"></i>
-                                                                                                                                                                                                                <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
-                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                    </tr>`
+                                                                                                                                                                                                                        data-isincome="true"></i>
+                                                                                                                                                                                                                        <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
+                                                                                                                                                                                                                </td>
+                                                                                                                                                                                                            </tr>`
                     incomeIndex++;
                 });
 
@@ -475,21 +502,21 @@
                 var row = "";
                 datasheetVM.expenseCategoryList.forEach((expense, expenseIndex) => {
                     row += `<tr >
-                                                                                                                                                                                                        <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
-                                                                                                                                                                                                                data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
+                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
+                                                                                                                                                                                                                        data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
                             "disabled")}></td>`
                     for (i = 0; i < datasheetVM.monthList.length; i++) {
                         row += `<td  class="text-center subcol table-data-class"><input type="number" value="${expense.amount[i]}" class="ExpenseInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                    data-expenseindex="${expenseIndex}">
-                                                                                                                                                                                                                    <input type="hidden"  class="monthExpenseH" value="${i}">
-                                                                                                                                                                                                                    <input type="hidden" class="expenseindexH" value="${expenseIndex}">
-                                                                                                                                                                                                                    </td>`
+                                                                                                                                                                                                                            data-expenseindex="${expenseIndex}">
+                                                                                                                                                                                                                            <input type="hidden"  class="monthExpenseH" value="${i}">
+                                                                                                                                                                                                                            <input type="hidden" class="expenseindexH" value="${expenseIndex}">
+                                                                                                                                                                                                                            </td>`
                     }
                     row += `<td class="text-center subcol "><i class="bi bi-trash text-danger deletedata inputClass" data-index="${expenseIndex}"
-                                                                                                                                                                                                                data-isincome="false"></i>
-                                                                                                                                                                                                                <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
-                                                                                                                                                                                                        </td>
-                                                                                                                                                                                                    </tr>`
+                                                                                                                                                                                                                        data-isincome="false"></i>
+                                                                                                                                                                                                                        <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
+                                                                                                                                                                                                                </td>
+                                                                                                                                                                                                            </tr>`
                     expenseIndex++;
                 })
 
@@ -686,21 +713,21 @@
         //export budgetsheet and activity sheet to excel
         function ExportSheet() {
             var table = `<table id=activity-table>
-                                                                                                                            <thead>
-                                                                                                                                <tr>
-                                                                                                                                    <th>Time</th>
-                                                                                                                                    <th>Message</th>
-                                                                                                                                </tr>
-                                                                                                                            </thead>
-                                                                                                                            <tbody>`;
+                                                                                                                                    <thead>
+                                                                                                                                        <tr>
+                                                                                                                                            <th>Time</th>
+                                                                                                                                            <th>Message</th>
+                                                                                                                                        </tr>
+                                                                                                                                    </thead>
+                                                                                                                                    <tbody>`;
             for (i = 0; i < messageArray.length; i++) {
                 table += `<tr>
-                                                                                                                                    <td>${timeArray[i]}</td>
-                                                                                                                                    <td>${messageArray[i]}</td>
-                                                                                                                                </tr>`;
+                                                                                                                                            <td>${timeArray[i]}</td>
+                                                                                                                                            <td>${messageArray[i]}</td>
+                                                                                                                                        </tr>`;
             }
             table += `</tbody>
-                                                                                                                        </table>`;
+                                                                                                                                </table>`;
 
             document.getElementById("exportActivityTable").innerHTML = table;
 
@@ -731,21 +758,21 @@
             }
             else {
                 var table = `<table id=activity-table>
-                                                                                                                            <thead>
-                                                                                                                                <tr>
-                                                                                                                                    <th>Time</th>
-                                                                                                                                    <th>Message</th>
-                                                                                                                                </tr>
-                                                                                                                            </thead>
-                                                                                                                            <tbody>`;
+                                                                                                                                    <thead>
+                                                                                                                                        <tr>
+                                                                                                                                            <th>Time</th>
+                                                                                                                                            <th>Message</th>
+                                                                                                                                        </tr>
+                                                                                                                                    </thead>
+                                                                                                                                    <tbody>`;
                 for (i = 0; i < messageArray.length; i++) {
                     table += `<tr>
-                                                                                                                                    <td>${timeArray[i]}</td>
-                                                                                                                                    <td>${messageArray[i]}</td>
-                                                                                                                                </tr>`;
+                                                                                                                                            <td>${timeArray[i]}</td>
+                                                                                                                                            <td>${messageArray[i]}</td>
+                                                                                                                                        </tr>`;
                 }
                 table += `</tbody>
-                                                                                                                        </table>`;
+                                                                                                                                </table>`;
             }
             document.getElementById("exportActivityTable").innerHTML = table;
             var table = document.getElementById("activity-table");
@@ -795,19 +822,23 @@
             for (var i = timeArray.length - 1; i >= 0; i--) {
 
                 activityList.innerHTML += `<li style="list-style: none; display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;">
-                                                                                                                                                                            <span class="text-secondary me-3 fw-bold">${timeArray[i]}</span>
-                                                                                                                                                                            <span class="dot ${colorArray[i]} me-3"></span>
-                                                                                                                                                                            <span class="text-dark fw-semibold">${messageArray[i]}</span>
-                                                                                                                                                                        </li>`;
+                                                                                                                                                                                    <span class="text-secondary me-3 fw-bold">${timeArray[i]}</span>
+                                                                                                                                                                                    <span class="dot ${colorArray[i]} me-3"></span>
+                                                                                                                                                                                    <span class="text-dark fw-semibold">${messageArray[i]}</span>
+                                                                                                                                                                                </li>`;
             }
             document.getElementById("activity-list").innerHTML = activityList.innerHTML;
         }
 
         //import data fromexcel
-        function ImportData() {
-            /* var file = document.getElementById("import-file-id").files[0];
+        function ImportFile() {
+            var file = document.getElementById("import-file-id").files[0];
             if (!file) {
                 errorToaster("Please select a file to import.");
+                return;
+            }
+            if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" && file.type !== "application/vnd.ms-excel") {
+                errorToaster("Please select a valid Excel file.");
                 return;
             }
             const reader = new FileReader();
@@ -819,10 +850,74 @@
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                console.log("imported data"jsonData); // Array of JSON objects
+                console.log("imported data",jsonData); // Array of JSON objects
+
+                console.log("hiii", jsonData); // Array of JSON objects
+
+                for (let i = 0; i < jsonData.length; i++) {
+                    importedArray.push(jsonData[i]);
+                    console.log(i, "---", jsonData[i].Category)
+                }
+
+                const montharrayTemp = Object.keys(jsonData[1]).filter(key => key !== "Category");
+                console.log("months", montharrayTemp)
+
+                let datasheetVMdata = {
+                    monthList: montharrayTemp,
+                    incomeCategoryList: [],
+                    expenseCategoryList: [],
+                    totalIncome: new Array(montharrayTemp.length).fill(0),
+                    totalExpense: new Array(montharrayTemp.length).fill(0),
+                    profitLoss: new Array(montharrayTemp.length).fill(0),
+                    openingBalance: new Array(montharrayTemp.length).fill(0),
+                    closingBalance: new Array(montharrayTemp.length).fill(0)
+                };
+
+                @* for(let i=0 ; i< montharrayTemp.length; i++){
+                datasheetVMdata.monthList.push(montharrayTemp[i]);
+            } *@
+
+                    let count = 0;
+
+                for (let i = 0; i < jsonData.length; i++) {
+                    if (jsonData[i].Category == "Income") {
+                        count++;
+                    } else if (jsonData[i].Category == "Total Income") {
+                        count++;
+                        break;
+                    } else {
+                        datasheetVMdata.incomeCategoryList.push({
+                            catgeoryName: jsonData[i].Category,
+                            amount: montharrayTemp.map(month => parseInt(jsonData[i][month]) || 0)
+                        });
+                        count++;
+                    }
+                }
+
+                for (let i = count; i < jsonData.length; i++) {
+                    if (jsonData[i].Category == "Expense") {
+                        count++;
+                    } else if (jsonData[i].Category == "Total Expense") {
+                        break;
+                    } else {
+                        datasheetVMdata.expenseCategoryList.push({
+                            catgeoryName: jsonData[i].Category,
+                            amount: montharrayTemp.map(month => parseInt(jsonData[i][month]) || 0)
+                        });
+                    }
+                }
+                datasheetData(datasheetVMdata);
+                RenderTable(datasheetVM);
+                setTimeout(() => {
+                    updateBudgetSheet();
+                    successToaster("Data imported successfully");
+                    fillActivityArray("green", "Data imported from excel file");
+                }, 1000);
+                $(".btn-close").click();
+
             };
 
-            reader.readAsArrayBuffer(file); */
+            reader.readAsArrayBuffer(file);
         }
 
     </script>
@@ -836,262 +931,182 @@
 
         $(document).ready(function () {
 
-        fileInput.addEventListener('change', (e) => {
-       
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-            const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-            console.log("hiii", jsonData); // Array of JSON objects
-
-            for (let i = 0; i < jsonData.length; i++) {
-                importedArray.push(jsonData[i]);
-                console.log(i, "---", jsonData[i].Category)
-            }
-
-            const montharrayTemp = Object.keys(jsonData[1]).filter(key => key !== "Category");
-            console.log("months", montharrayTemp)
             
-            let datasheetVMdata = {
-                monthList: montharrayTemp,
-                incomeCategoryList: [],
-                expenseCategoryList: [],
-                totalIncome: new Array(montharrayTemp.length).fill(0),
-                totalExpense: new Array(montharrayTemp.length).fill(0),
-                profitLoss: new Array(montharrayTemp.length).fill(0),
-                openingBalance: new Array(montharrayTemp.length).fill(0),
-                closingBalance: new Array(montharrayTemp.length).fill(0)
-            };
+            //start date validations
+            $("#startDate").on("change", function () {
+                startDate = document.getElementById("startDate").value;
+                endDateInput = document.getElementById("endDate").value;
 
-            @* for(let i=0 ; i< montharrayTemp.length; i++){
-                datasheetVMdata.monthList.push(montharrayTemp[i]);
-            } *@
-
-            let count = 0;
-
-            for (let i = 0; i < jsonData.length; i++) {
-                if (jsonData[i].Category == "Income") {
-                    count++;
-                } else if (jsonData[i].Category == "Total Income") {
-                    count ++;
-                    break;
-                } else {
-                    datasheetVMdata.incomeCategoryList.push({
-                        catgeoryName: jsonData[i].Category,
-                        amount: montharrayTemp.map(month => parseInt(jsonData[i][month]) || 0)
-                    });
-                    count++;
+                if (endDateInput == "") return;
+                if (endDateInput < startDate) {
+                    errorToaster("End date should be greater than Start date.");
+                    endDate = "";
+                    document.getElementById("endDate").value = "";
                 }
-            }
+            })
 
-            for (let i = count ; i < jsonData.length; i++) {
-                if (jsonData[i].Category == "Expense") {
-                    count++;
-                } else if (jsonData[i].Category == "Total Expense") {
-                    break;
-                } else {
-                    datasheetVMdata.expenseCategoryList.push({
-                        catgeoryName: jsonData[i].Category,
-                        amount: montharrayTemp.map(month => parseInt(jsonData[i][month]) || 0)
-                    });
+            //enddate validations
+            $("#endDate").on("change", function () {
+                startDate = document.getElementById("startDate").value;
+                endDate = document.getElementById("endDate").value;
+
+                if (endDate < startDate) {
+                    errorToaster("End date should be greater than Start date");
+                    document.getElementById("endDate").value = "";
+                    endDate = "";
                 }
-            }
-            datasheetData(datasheetVMdata);
-            RenderTable(datasheetVM);
-            setTimeout(() => {
-                updateBudgetSheet();
-                successToaster("Data imported successfully");
-                fillActivityArray("green", "Data imported from excel file");
-            }, 1000);
+            })
 
-        };
+            //change income category name
+            $(document).on("input", ".IncomeName", function () {
+                var catIndex = $(this).data("incomeindex");
+                var value = $(this).val();
+                IsChangeAfterExport = true;
 
-        reader.readAsArrayBuffer(file);
-    });
+            });
 
-
-        //start date validations
-        $("#startDate").on("change", function () {
-            startDate = document.getElementById("startDate").value;
-            endDateInput = document.getElementById("endDate").value;
-
-            if (endDateInput == "") return;
-            if (endDateInput < startDate) {
-                errorToaster("End date should be greater than Start date.");
-                endDate = "";
-                document.getElementById("endDate").value = "";
-            }
-        })
-
-        //enddate validations
-        $("#endDate").on("change", function () {
-            startDate = document.getElementById("startDate").value;
-            endDate = document.getElementById("endDate").value;
-
-            if (endDate < startDate) {
-                errorToaster("End date should be greater than Start date");
-                document.getElementById("endDate").value = "";
-                endDate = "";
-            }
-        })
-
-        //change income category name
-        $(document).on("input", ".IncomeName", function () {
-            var catIndex = $(this).data("incomeindex");
-            var value = $(this).val();
-            IsChangeAfterExport = true;
-
-        });
-
-        //disable income name category
-        $(document).on("change", ".IncomeName", function () {
-            IsChangeAfterExport = true;
-            var value = $(this).val();
-            var catIndex = $(this).data("incomeindex");
-            for (i = 0; i < datasheetVM.incomeCategoryList.length; i++) {
-                if (datasheetVM.incomeCategoryList[i].catgeoryName == value) {
-                    errorToaster("Category Already exist.")
-                    this.value = "";
-                    value = "";
-                    this.focus();
-                    return;
-                }
-            }
-            datasheetVM.incomeCategoryList[catIndex].catgeoryName = value;
-            updateBudgetSheet();
-            this.setAttribute("disabled", "disabled");
-            fillActivityArray("green", `${value} category is Added under Income Section `);
-        });
-
-        //change expense category name
-        $(document).on("input", ".ExpenseName", function () {
-            var catIndex = $(this).data("expenseindex");
-            var value = $(this).val();
-
-        });
-
-        //disable expense name category
-        $(document).on("change", ".ExpenseName", function () {
-            IsChangeAfterExport = true;
-            var value = $(this).val();
-            var catIndex = $(this).data("expenseindex");
-            for (i = 0; i < datasheetVM.expenseCategoryList.length; i++) {
-                if (datasheetVM.expenseCategoryList[i].catgeoryName == value) {
-                    errorToaster("Category Already exist.")
-                    this.value = "";
-                    value = "";
-                    this.focus();
-                    return;
-                }
-            }
-            datasheetVM.expenseCategoryList[catIndex].catgeoryName = value;
-            updateBudgetSheet();
-            this.setAttribute("disabled", "disabled");
-            fillActivityArray("green", `${value} category is Added under Expense Section `);
-        });
-
-        //change income input
-        $(document).on("input", ".IncomeInput", function () {
-            var amountindex = $(this).data("month");
-            var catIndex = $(this).data("incomeindex");
-            var value = $(this).val() == "" ? 0 : parseInt($(this).val());
-            this.value = $(this).val() == "" ? 0 : parseInt($(this).val());
-
-            datasheetVM.incomeCategoryList[catIndex].amount[amountindex] = parseInt(value);
-            updateBudgetSheet();
-        });
-
-        //change expense input
-        $(document).on("input", ".ExpenseInput", function () {
-            var amountindex = $(this).data("month");
-            var catIndex = $(this).data("expenseindex");
-            var value = $(this).val() == "" ? 0 : parseInt($(this).val());
-            this.value = $(this).val() == "" ? 0 : parseInt($(this).val());
-            datasheetVM.expenseCategoryList[catIndex].amount[amountindex] = parseInt(value);
-            updateBudgetSheet();
-        });
-
-        $(document).on("change", ".IncomeInput", function () {
-            amountindex = $(this).data("month");
-            var catIndex = $(this).data("incomeindex");
-            var value = $(this).val() == "" ? 0 : parseInt($(this).val());
-
-
-            var catgeoryName = datasheetVM.incomeCategoryList[catIndex].catgeoryName;
-            fillActivityArray("green", `${value} Rs has been added to ${catgeoryName} for Income ${monthArray[amountindex]}`);
-        });
-
-        $(document).on("change", ".ExpenseInput", function () {
-            amountindex = $(this).data("month");
-            var catIndex = $(this).data("expenseindex");
-            var value = $(this).val() == "" ? 0 : parseInt($(this).val());
-            var catgeoryName = datasheetVM.expenseCategoryList[catIndex].catgeoryName;
-            fillActivityArray("green", `${value} Rs has been added to ${catgeoryName} for Expense ${monthArray[amountindex]}`);
-        });
-
-        //delete category
-        $(document).on("click", ".deletedata", function () {
-            var index = $(this).data("index");
-            var isIncome = $(this).data("isincome");
-            document.getElementById("cat-index").value = index;
-            document.getElementById("is-income").value = isIncome;
-            $("#delete-category").modal("show");
-        });
-
-        //add new category on enter key press or update if not
-        $(document).on("keydown", ".inputClass", function (e) {
-            if (e.keyCode == 13) {
-                if (e.target.classList.contains("IncomeName") || e.target.classList.contains("IncomeInput")) {
-                    if (datasheetVM.incomeCategoryList[datasheetVM.incomeCategoryList.length - 1].catgeoryName == "") {
-                        document.getElementsByClassName("IncomeName")[datasheetVM.incomeCategoryList.length - 1].focus();
-                    } else {
-                        addCategory(true);
-                    }
-                } else {
-                    if (datasheetVM.expenseCategoryList[datasheetVM.expenseCategoryList.length - 1].catgeoryName == "") {
-                        document.getElementsByClassName("ExpenseName")[datasheetVM.expenseCategoryList.length - 1].focus();
-                    } else {
-                        addCategory(false);
+            //disable income name category
+            $(document).on("change", ".IncomeName", function () {
+                IsChangeAfterExport = true;
+                var value = $(this).val();
+                var catIndex = $(this).data("incomeindex");
+                for (i = 0; i < datasheetVM.incomeCategoryList.length; i++) {
+                    if (datasheetVM.incomeCategoryList[i].catgeoryName == value) {
+                        errorToaster("Category Already exist.")
+                        this.value = "";
+                        value = "";
+                        this.focus();
+                        return;
                     }
                 }
-            } else {
+                datasheetVM.incomeCategoryList[catIndex].catgeoryName = value;
                 updateBudgetSheet();
-            }
-        });
+                this.setAttribute("disabled", "disabled");
+                fillActivityArray("green", `${value} category is Added under Income Section `);
+            });
 
-        //applu to all when right clicked
-        $(document).on("contextmenu", ".input-data-number", function (e) {
-            e.preventDefault();
-            var catIndex;
-            if (this.classList.contains("IncomeInput")) {
-                catIndex = $(this).data("incomeindex")
-            } else {
-                catIndex = $(this).data("expenseindex")
-            }
+            //change expense category name
+            $(document).on("input", ".ExpenseName", function () {
+                var catIndex = $(this).data("expenseindex");
+                var value = $(this).val();
 
-            var value = $(this).val();
-            var month = $(this).data("month");
+            });
 
-            $("#apply-to-all").modal("show");
-            document.getElementById("cat-index-apply").value = catIndex;
-            document.getElementById("value-apply").value = value;
-            document.getElementById("month-apply").value = month;
-            if (this.classList.contains("IncomeInput")) {
-                document.getElementById("is-income-apply").value = true;
-            } else {
-                document.getElementById("is-income-apply").value = false;
-            }
+            //disable expense name category
+            $(document).on("change", ".ExpenseName", function () {
+                IsChangeAfterExport = true;
+                var value = $(this).val();
+                var catIndex = $(this).data("expenseindex");
+                for (i = 0; i < datasheetVM.expenseCategoryList.length; i++) {
+                    if (datasheetVM.expenseCategoryList[i].catgeoryName == value) {
+                        errorToaster("Category Already exist.")
+                        this.value = "";
+                        value = "";
+                        this.focus();
+                        return;
+                    }
+                }
+                datasheetVM.expenseCategoryList[catIndex].catgeoryName = value;
+                updateBudgetSheet();
+                this.setAttribute("disabled", "disabled");
+                fillActivityArray("green", `${value} category is Added under Expense Section `);
+            });
+
+            //change income input
+            $(document).on("input", ".IncomeInput", function () {
+                var amountindex = $(this).data("month");
+                var catIndex = $(this).data("incomeindex");
+                var value = $(this).val() == "" ? 0 : parseInt($(this).val());
+                this.value = $(this).val() == "" ? 0 : parseInt($(this).val());
+
+                datasheetVM.incomeCategoryList[catIndex].amount[amountindex] = parseInt(value);
+                updateBudgetSheet();
+            });
+
+            //change expense input
+            $(document).on("input", ".ExpenseInput", function () {
+                var amountindex = $(this).data("month");
+                var catIndex = $(this).data("expenseindex");
+                var value = $(this).val() == "" ? 0 : parseInt($(this).val());
+                this.value = $(this).val() == "" ? 0 : parseInt($(this).val());
+                datasheetVM.expenseCategoryList[catIndex].amount[amountindex] = parseInt(value);
+                updateBudgetSheet();
+            });
+
+            $(document).on("change", ".IncomeInput", function () {
+                amountindex = $(this).data("month");
+                var catIndex = $(this).data("incomeindex");
+                var value = $(this).val() == "" ? 0 : parseInt($(this).val());
+
+
+                var catgeoryName = datasheetVM.incomeCategoryList[catIndex].catgeoryName;
+                fillActivityArray("green", `${value} Rs has been added to ${catgeoryName} for Income ${monthArray[amountindex]}`);
+            });
+
+            $(document).on("change", ".ExpenseInput", function () {
+                amountindex = $(this).data("month");
+                var catIndex = $(this).data("expenseindex");
+                var value = $(this).val() == "" ? 0 : parseInt($(this).val());
+                var catgeoryName = datasheetVM.expenseCategoryList[catIndex].catgeoryName;
+                fillActivityArray("green", `${value} Rs has been added to ${catgeoryName} for Expense ${monthArray[amountindex]}`);
+            });
+
+            //delete category
+            $(document).on("click", ".deletedata", function () {
+                var index = $(this).data("index");
+                var isIncome = $(this).data("isincome");
+                document.getElementById("cat-index").value = index;
+                document.getElementById("is-income").value = isIncome;
+                $("#delete-category").modal("show");
+            });
+
+            //add new category on enter key press or update if not
+            $(document).on("keydown", ".inputClass", function (e) {
+                if (e.keyCode == 13) {
+                    if (e.target.classList.contains("IncomeName") || e.target.classList.contains("IncomeInput")) {
+                        if (datasheetVM.incomeCategoryList[datasheetVM.incomeCategoryList.length - 1].catgeoryName == "") {
+                            document.getElementsByClassName("IncomeName")[datasheetVM.incomeCategoryList.length - 1].focus();
+                        } else {
+                            addCategory(true);
+                        }
+                    } else {
+                        if (datasheetVM.expenseCategoryList[datasheetVM.expenseCategoryList.length - 1].catgeoryName == "") {
+                            document.getElementsByClassName("ExpenseName")[datasheetVM.expenseCategoryList.length - 1].focus();
+                        } else {
+                            addCategory(false);
+                        }
+                    }
+                } else {
+                    updateBudgetSheet();
+                }
+            });
+
+            //applu to all when right clicked
+            $(document).on("contextmenu", ".input-data-number", function (e) {
+                e.preventDefault();
+                var catIndex;
+                if (this.classList.contains("IncomeInput")) {
+                    catIndex = $(this).data("incomeindex")
+                } else {
+                    catIndex = $(this).data("expenseindex")
+                }
+
+                var value = $(this).val();
+                var month = $(this).data("month");
+
+                $("#apply-to-all").modal("show");
+                document.getElementById("cat-index-apply").value = catIndex;
+                document.getElementById("value-apply").value = value;
+                document.getElementById("month-apply").value = month;
+                if (this.classList.contains("IncomeInput")) {
+                    document.getElementById("is-income-apply").value = true;
+                } else {
+                    document.getElementById("is-income-apply").value = false;
+                }
+            })
+
+
         })
-
-
-                })
     </script>
 
     <partial name="_Toaster" />
