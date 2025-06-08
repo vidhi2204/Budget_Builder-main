@@ -1,0 +1,148 @@
+@model DataViewModel
+@{
+    int incomeIndex = 0;
+    int expenseIndex = 0;
+
+
+    <table id="example" class="table display">
+        <thead>
+            <tr>
+                <th class="headcol">Category</th>
+                    @foreach (var month in Model.MonthList)
+                    {
+                        <th class="text-center subcol">@month</th>
+                    }
+                    <th class="text-center subcol ">Delete</th>
+               
+            </tr>
+        </thead>
+
+        <tbody id="income-data-id">
+            <!--------------- income inputs------------------------>
+            @foreach (var income in Model.IncomeCategoryList)
+            {
+                <tr >
+                    <td class="headcol"><input type="text" placeholder="Enter Income" value="@income.CatgeoryName"
+                            data-incomeindex="@incomeIndex" class="IncomeName inputClass" @(income.CatgeoryName == "" ? "":
+                                                                                                              "disabled" )></td>
+            @for (int i = 0; i < Model.MonthList.Count; i++)
+                    {
+                        <td  class="text-center subcol income-td"><input type="number" value="@income.Amount[i]" class="IncomeInput inputClass input-data-number" data-month="@i"
+                                data-incomeindex="@incomeIndex">
+                                <input type="hidden"  class="monthIncomeH" value="@i">
+                                <input type="hidden" class="incomeindexH" value="@incomeIndex">
+                                </td>
+                    }
+                    <td class="text-center subcol inputClass"><i class="bi bi-trash text-danger deletedata inputClass" data-index="@incomeIndex"
+                            data-isincome="true"></i>
+                            <input type="hidden" class="indexIncomeH" value="@incomeIndex">
+                    </td>
+                </tr>
+                incomeIndex++;
+            }
+         
+        </tbody>
+
+        <tbody >
+            <!--------------------- T0tal income---------------------------->
+            <tr>
+                <td class="fw-bold headcol">Total Income</td>
+                @foreach (var income in Model.TotalIncome)
+                {
+                    <td  class="text-center subcol"><input type="text" value="@income" disabled class="TotalIncome"></td>
+                }
+                <td></td>
+            </tr>
+        </tbody>
+        <tbody>
+            <!---------------------- expense ------------------>
+            <tr>
+                <td class="fw-bold headcol">Expense</td>
+                <td  colspan="@(Model.MonthList.Count)" class="subcol"></td>
+            </tr>
+        </tbody>
+        <tbody id="expense-data-id">
+            <!-----------------------  expense inputs----------------->
+            @foreach (var Expense in Model.ExpenseCategoryList)
+            {
+                <tr>
+                    <td class="headcol"><input type="text" placeholder="Enter Expense" class="ExpenseName inputClass "
+                            value="@Expense.CatgeoryName" data-expenseindex="@expenseIndex" @(Expense.CatgeoryName == "" ? "":
+                                                                                                                "disabled" )></td>
+            @for (int i = 0; i < Model.MonthList.Count; i++)
+                    {
+                        <td  class="text-center subcol"><input type="number" value="@Expense.Amount[i]" class="ExpenseInput inputClass input-data-number" data-month="@i"
+                                data-expenseindex="@expenseIndex">
+                                <input type="hidden" class="monthExpenseH" value="@i">
+                                <input type="hidden" class="expenseindexH" value="@expenseIndex">
+                                </td>
+                    }
+                    <td class="text-center subcol"><i class="bi bi-trash text-danger deletedata inputClass" data-index="@expenseIndex"
+                            data-isincome="false"></i>
+                            <input type="hidden" class="indexExpenseH" value="@expenseIndex">
+                    </td>
+                </tr>
+                expenseIndex++;
+            }
+        </tbody>
+
+
+        <!----------------------- total expense ----------------->
+        <tbody>
+            <tr>
+                <td class="fw-bold headcol">Total Expense</td>
+                @foreach (var expense in Model.TotalExpense)
+                {
+                    <td class="text-center subcol"><input type="text" value="@expense" disabled class="TotalExpense"></td>
+                }
+                <td class="subcol"></td>
+            </tr>
+        </tbody>
+
+        <tbody>
+            <!-----------------------  summary title----------------->
+            <tr>
+                <td class="fw-bold headcol">Summary</td>
+                <td colspan="@(Model.MonthList.Count )" class="subcol"></td>
+            </tr>
+            <!-----------------------  Profit/Loss<---------------->
+            <tr>
+                <td class="fw-bold headcol">Profit/Loss</td>
+                @foreach (var profit in Model.ProfitLoss)
+                {
+                    <td class="text-center subcol"><input type="text" value="@profit" disabled class="ProfitLoss"></td>
+                }
+                <td class="subcol"></td>
+            </tr>
+
+            <!----------------------- Opening Balance----------------->
+            <tr>
+                <td class="fw-bold headcol">Opening Balance</td>
+                @foreach (var OpeningBalance in Model.OpeningBalance)
+                {
+                    <td class="text-center subcol"><input type="text" value="@OpeningBalance" disabled class="OpeningBalance"></td>
+                }
+                <td class="subcol"></td>
+            </tr>
+
+            <!-----------------------Closing Balance----------------->
+            <tr>
+                <td class="fw-bold headcol">Closing Balance</td>
+                @foreach (var ClosingBalance in Model.ClosingBalance)
+                {
+                    <td class="text-center subcol"><input type="text" value="@ClosingBalance" disabled class="ClosingBalance"></td>
+                }
+                <td class="subcol"></td>
+            </tr>
+
+        </tbody>
+    </table>
+}
+
+
+    <script>
+        $(document).ready(function () {
+            var datasheetVM = @Html.Raw(Json.Serialize(Model));
+            datasheetData(datasheetVM);
+        })
+    </script>

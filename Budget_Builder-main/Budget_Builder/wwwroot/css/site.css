@@ -1,0 +1,108 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+
+}
+
+.text-color {
+  color: #007074;
+}
+
+.button-solid {
+  background-color: #007074;
+  color: white;
+}
+
+.button-solid:hover {
+  /* background-color: #2a6f56; */
+  color: white;
+}
+
+.table-main-div {
+  position: relative;
+  overflow-x: auto;
+}
+
+
+.headcol {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: #d7dcdd !important;
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+  left: 0;
+
+}
+
+.subcol {
+  left: 500px !important;
+}
+
+
+/* .btn-reset{
+  background-color: rgba(174, 206, 224, 0.205);
+  color: white;
+} */
+
+
+
+.activity-list {
+  list-style: none;
+}
+
+
+
+/* .timestamp {
+
+  width: 170px;
+} */
+
+.dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.green {
+  background-color: #28a745;
+}
+
+.dot.red {
+  background-color: #dc3545;
+}
+
+.dot.blue {
+  background-color: #007bff;
+}
+
+
+/* table > tbody  {
+  border : none !important;
+}
+
+table > tbody > tr {
+  border-bottom : none !important;
+} */
+
+table > tbody > tr > td {
+  border-bottom : none !important;
+}
