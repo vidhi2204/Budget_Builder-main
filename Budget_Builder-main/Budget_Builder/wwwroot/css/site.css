@@ -49,11 +49,42 @@ html {
   min-width: 200px !important;
   max-width: 200px !important;
   left: 0;
+}
 
+.lastcol {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: #d7dcdd !important;
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+  right: 0;
 }
 
 .subcol {
   left: 500px !important;
+  right: 200px !important;
+}
+
+@media (max-width: 700px) {
+  .headcol {
+    position: relative;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .lastcol {
+    position: relative;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .subcol {
+    left: auto !important;
+    right: auto !important;
+  }
 }
 
 

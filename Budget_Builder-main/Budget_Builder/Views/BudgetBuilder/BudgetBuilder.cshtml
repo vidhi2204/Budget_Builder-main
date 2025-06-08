@@ -2,6 +2,59 @@
     ViewData["Title"] = "Home Page";
 }
 
+
+
+
+<div class="row p-3 ">
+    <div class="input-div rounded  p-2" style="background-color: #d7dcdd">
+        <div class="title-text text-color fs-3 fw-bold">Budget Calculator</div>
+        <div class="d-flex justify-content-start mb-2 row">
+            <div class="form-floating me-3 col-2">
+                <input type="date" id="startDate" placeholder="Start date" class="m-2 w-100 form-control p-2 ">
+                <label for="startDate" class="ms-3"> Start Date</label>
+            </div>
+            <div class="form-floating me-3 col-2">
+                <input type="date" id="endDate" class="m-2 w-100 form-control p-2 " placeholder="End date">
+                <label for="endDate" class="ms-3">End Date</label>
+            </div>
+            <div class="btn button-solid m-2 d-flex align-items-center col-1" onclick="generate()">Generate</div>
+            <button class="btn btn-secondary m-2 d-flex align-items-center col-1" id="reset-button-id"
+                data-bs-toggle="modal" data-bs-target="#reset-sheet" disabled>Reset</button>
+            <button class="btn btn-secondary m-2 d-flex align-items-center col-1" id="export-id" onclick="ExportSheet()"
+                disabled>Export</button>
+            <button class="btn btn-secondary m-2 d-flex align-items-center col-1" id="activity-button"
+                onclick="activityToggle()" disabled>Activity</button>
+
+
+        </div>
+        <div class="d-flex justify-content-start row ms-1">
+
+            <button class="btn btn-secondary m-2 d-flex align-items-center col-2" data-bs-toggle="modal"
+                data-bs-target="#import-file-modal">Import</button>
+        </div>
+    </div>
+
+    <div class="activity-main-div rounded mt-4  d-none"
+        style="background-color: #d7dcdd; max-height: 400px; overflow : auto;">
+        <div class="text-color mt-2 mb-2 fs-3 fw-bold">Recent Activity <span class="btn ms-3 btn-secondary "
+                onclick="ExportActivity()">Export</span></div>
+        <ul id="activity-list">
+
+        </ul>
+    </div>
+
+    <div class="data-entries  rounded mt-4 " style="background-color: #d7dcdd">
+        <div id="Budget-Sheet-data" class="table-main-div">
+
+        </div>
+    </div>
+    <div class="d-none" id="exportActivityTable"></div>
+    <div class="d-none" id="exportTablediv"></div>
+
+</div>
+
+
+<!--------------------------------- modal------------------------------------------------------------>
 <div id="delete-category" class="modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -11,7 +64,6 @@
             </div>
             <div class="modal-body ">
                 <div class="delete-cat-image d-flex flex-column  align-items-center">
-                    <img src="../images/toppng.com-warning-icon-2400x2400.png" width="50px" alt="">
                     <p>Are you sure you want to Delete this category?</p>
                     <input type="hidden" id="cat-index">
                     <input type="hidden" id="is-income">
@@ -20,8 +72,8 @@
 
             </div>
             <div class="modal-footer d-flex justify-content-center">
-                <a type="submit" class="btn btn-primary" onclick="deleteCategory()">Yes</a>
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+                <a type="submit" class="btn btn-dark" onclick="deleteCategory()">Yes</a>
+                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">No</button>
             </div>
         </div>
     </div>
@@ -41,8 +93,8 @@
 
             </div>
             <div class="modal-footer d-flex justify-content-center">
-                <a type="submit" class="btn btn-primary" onclick="resetSheet()">Yes</a>
-                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">No</button>
+                <a type="submit" class="btn btn-dark" onclick="resetSheet()">Yes</a>
+                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">No</button>
             </div>
         </div>
     </div>
@@ -96,12 +148,12 @@
                         <br> The file should contain the following columns: Category, months
                         <br> and Amount for both Income and Expense categories. *@
                     </p>
-                    <input type="file" id="import-file-id"  accept=".xlsx ">
+                    <input type="file" id="import-file-id" accept=".xlsx, .xls">
                 </div>
 
             </div>
             <div class="modal-footer d-flex  justify-content-center">
-                <a type="submit" class="btn btn-primary" onclick="ImportFile()" style="width: 200px;">Import</a>
+                <a type="submit" class="btn btn-dark" onclick="ImportFile()" style="width: 200px;">Import</a>
                 <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal"
                     style="width: 200px;">Cancel</button>
             </div>
@@ -109,52 +161,6 @@
     </div>
 </div>
 
-<div class="row p-3 ">
-    <div class="input-div rounded  p-2" style="background-color: #d7dcdd">
-        <div class="title-text text-color fs-3 fw-bold">Budget Calculator</div>
-        <div class="d-flex justify-content-start mb-2 row">
-            <div class="form-floating me-3 col-2">
-                <input type="date" id="startDate" placeholder="Start date" class="m-2 w-100 form-control p-2 ">
-                <label for="startDate" class="ms-3"> Start Date</label>
-            </div>
-            <div class="form-floating me-3 col-2">
-                <input type="date" id="endDate" class="m-2 w-100 form-control p-2 " placeholder="End date">
-                <label for="endDate" class="ms-3">End Date</label>
-            </div>
-            <div class="btn button-solid m-2 d-flex align-items-center col-1" onclick="generate()">Generate</div>
-            <button class="btn btn-secondary m-2 d-flex align-items-center col-1" id="reset-button-id"
-                data-bs-toggle="modal" data-bs-target="#reset-sheet" disabled>Reset</button>
-            <button class="btn btn-secondary m-2 d-flex align-items-center col-1" id="export-id" onclick="ExportSheet()"
-                disabled>Export</button>
-            <button class="btn btn-secondary m-2 d-flex align-items-center col-1" id="activity-button"
-                onclick="activityToggle()" disabled>Activity</button>
-
-
-        </div>
-        <div class="d-flex justify-content-start row ms-1">
-
-            <button class="btn btn-secondary m-2 d-flex align-items-center col-2"  data-bs-toggle="modal" data-bs-target="#import-file-modal">Import</button>
-        </div>
-    </div>
-
-    <div class="activity-main-div rounded mt-4  d-none"
-        style="background-color: #d7dcdd; max-height: 400px; overflow : auto;">
-        <div class="text-color mt-2 mb-2 fs-3 fw-bold">Recent Activity <span class="btn ms-3 btn-secondary "
-                onclick="ExportActivity()">Export</span></div>
-        <ul id="activity-list">
-
-        </ul>
-    </div>
-
-    <div class="data-entries  rounded mt-4 " style="background-color: #d7dcdd">
-        <div id="Budget-Sheet-data" class="table-main-div">
-
-        </div>
-    </div>
-    <div class="d-none" id="exportActivityTable"></div>
-    <div class="d-none" id="exportTablediv"></div>
-
-</div>
 
 
 @section Scripts {
@@ -278,140 +284,140 @@
             BudgetSheetTable.innerHTML = "";
 
             var row = `<table id="example" class="table display">
-                                                                                                                                                                                                                    <thead>
-                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                            <th class="headcol">Category</th>`
+                            <thead>
+                                <tr>
+                                    <th class="headcol">Category</th>`
             datasheetVM.monthList.forEach((month) => {
                 row += `<th class="text-center subcol">${month}</th>`;
             })
-            row += `<th class="text-center subcol">Delete</th>
-                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                            </thead>
-                                                                                                                                                                                                                            <tbody>
-                                                                                                                    <!---------------------- expense ------------------>
-                                                                                                                    <tr>
-                                                                                                                        <td class="fw-bold headcol">Income</td>
-                                                                                                                        <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
-                                                                                                                    </tr>
-                                                                                                                </tbody>
+            row += `<th class="text-center lastcol">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    <!---------------------- Income ------------------>
+                    <tr>
+                        <td class="fw-bold headcol">Income</td>
+                        <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
+                    </tr>
+                </tbody>
 
-                                                                                                                                                                                                                            <tbody id="income-data-id">`
+                     <tbody id="income-data-id">`
             datasheetVM.incomeCategoryList.forEach((income, incomeIndex) => {
                 row += `<tr>
-                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
-                                                                                                                                                                                                                        data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
+                        <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
+                                data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
                         "disabled")}></td>`
                 @* for (i = 0; i < datasheetVM.monthList.length; i++)
                 { *@
                     datasheetVM.monthList.forEach((month, i) => {
                         row += `<td  class="text-center subcol table-data-class"><input type="number" value="${income.amount[i]}" class="IncomeInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                                data-incomeindex="${incomeIndex}">
-                                                                                                                                                                                                                                <input type="hidden"  class="monthIncomeH" value="${i}">
-                                                                                                                                                                                                                                <input type="hidden" class="incomeindexH" value="${incomeIndex}">
-                                                                                                                                                                                                                                </td>`
+                            data-incomeindex="${incomeIndex}">
+                            <input type="hidden"  class="monthIncomeH" value="${i}">
+                            <input type="hidden" class="incomeindexH" value="${incomeIndex}">
+                            </td>`
                     })
-                row += `<td class="text-center subcol inputClass"><i class="bi bi-trash text-danger deletedata inputClass" data-index="${incomeIndex}"
-                                                                                                                                                                                                                        data-isincome="true"></i>
-                                                                                                                                                                                                                        <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
-                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                            </tr>`
+                row += `<td class="text-center  inputClass lastcol"><i class="bi bi-trash text-danger deletedata inputClass" data-index="${incomeIndex}"
+                        data-isincome="true"></i>
+                        <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
+                </td>
+            </tr>`
                 incomeIndex++;
             })
 
             row += `</tbody>
-                                                                                                                                                                                                                <tbody>
-                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                        <td class="fw-bold headcol">Total Income</td>`
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold headcol">Total Income</td>`
             datasheetVM.totalIncome.forEach((income) => {
                 row += `<td  class="text-center subcol"><input type="text" value="${income}" disabled class="TotalIncome"></td>`;
             })
 
-            row += `<td></td>
-                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                    </tbody>
-                                                                                                                                                                                                    <tbody>
-                                                                                                                                                                                                        <!---------------------- expense ------------------>
-                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                            <td class="fw-bold headcol">Expense</td>
-                                                                                                                                                                                                            <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
-                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                    </tbody>
-                                                                                                                                                                                                    <tbody id="expense-data-id">`
+            row += `<td class="lastcol"></td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <!---------------------- expense ------------------>
+                        <tr>
+                            <td class="fw-bold headcol">Expense</td>
+                            <td  colspan="${datasheetVM.monthList.length + 1}" class="subcol"></td>
+                        </tr>
+                    </tbody>
+                    <tbody id="expense-data-id">`
 
 
 
             datasheetVM.expenseCategoryList.forEach((expense, expenseIndex) => {
                 row += `<tr >
-                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
-                                                                                                                                                                                                                        data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
+                            <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
+                                    data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
                         "disabled")}></td>`
                 for (i = 0; i < datasheetVM.monthList.length; i++) {
                     row += `<td  class="text-center subcol table-data-class"><input type="number" value="${expense.amount[i]}" class="ExpenseInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                            data-expenseindex="${expenseIndex}">
-                                                                                                                                                                                                                            <input type="hidden"  class="monthExpenseH" value="${i}">
-                                                                                                                                                                                                                            <input type="hidden" class="expenseindexH" value="${expenseIndex}">
-                                                                                                                                                                                                                            </td>`
+                                data-expenseindex="${expenseIndex}">
+                                <input type="hidden"  class="monthExpenseH" value="${i}">
+                                <input type="hidden" class="expenseindexH" value="${expenseIndex}">
+                                </td>`
                 }
-                row += `<td class="text-center subcol "><i class="bi bi-trash text-danger deletedata inputClass" data-index="${expenseIndex}"
-                                                                                                                                                                                                                        data-isincome="false"></i>
-                                                                                                                                                                                                                        <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
-                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                            </tr>`
+                row += `<td class="text-center lastcol "><i class="bi bi-trash text-danger deletedata inputClass" data-index="${expenseIndex}"
+                        data-isincome="false"></i>
+                        <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
+                </td>
+            </tr>`
                 expenseIndex++;
             })
 
             row += `</tbody>
-                                                                                                                                                                                                                <tbody>
-                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                        <td class="fw-bold headcol">Total Expense</td>`
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold headcol">Total Expense</td>`
             datasheetVM.totalExpense.forEach((expense) => {
                 row += `<td  class="text-center subcol"><input type="text" value="${expense}" disabled class="TotalExpense"></td>`;
             })
-            row += `<td class="subcol"></td>
-                                                                                                                                                                                                </tr>
-                                                                                                                                                                                            </tbody>
+            row += `<td class="lastcol"></td>
+                    </tr>
+                </tbody>
 
-                                                                                                                                                                                            <tbody>
-                                                                                                                                                                                                <!-----------------------  summary title----------------->
-                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                    <td class="fw-bold headcol">Summary</td>
-                                                                                                                                                                                                    <td colspan="${datasheetVM.monthList.length}" class="subcol"></td>
-                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                <!-----------------------  Profit/Loss<---------------->
-                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                    <td class="fw-bold headcol">Profit/Loss</td>`
+                <tbody>
+                    <!-----------------------  summary title----------------->
+                    <tr>
+                        <td class="fw-bold headcol">Summary</td>
+                        <td colspan="${datasheetVM.monthList.length}" class="subcol"></td>
+                    </tr>
+                    <!-----------------------  Profit/Loss<---------------->
+                    <tr>
+                        <td class="fw-bold headcol">Profit/Loss</td>`
 
             datasheetVM.profitLoss.forEach((profit) => {
                 row += `<td class="text-center subcol"><input type="text" value="${profit}" disabled class="ProfitLoss"></td>`;
             })
 
-            row += `<td class="subcol"></td>
-                                                                                                                                                                                                </tr>
+            row += `<td class="lastcol"></td>
+                        </tr>
 
-                                                                                                                                                                                                <!----------------------- Opening Balance----------------->
-                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                    <td class="fw-bold headcol">Opening Balance</td>`;
+                        <!----------------------- Opening Balance----------------->
+                        <tr>
+                            <td class="fw-bold headcol">Opening Balance</td>`;
 
             datasheetVM.openingBalance.forEach((opening) => {
                 row += `<td class="text-center subcol"><input type="text" value="${opening}" disabled class="OpeningBalance"></td>`;
             })
 
-            row += `<td class="subcol"></td>
-                                                                                                                                                                                                </tr>
+            row += `<td class="lastcol"></td>
+                        </tr>
 
-                                                                                                                                                                                                <!-----------------------Closing Balance----------------->
-                                                                                                                                                                                                <tr>
-                                                                                                                                                                                                    <td class="fw-bold headcol">Closing Balance</td>`;
+                        <!-----------------------Closing Balance----------------->
+                        <tr>
+                            <td class="fw-bold headcol">Closing Balance</td>`;
 
             datasheetVM.closingBalance.forEach((closing) => {
                 row += `<td class="text-center subcol"><input type="text" value="${closing}" disabled class="ClosingBalance"></td>`;
             })
 
-            row += `<td class="subcol"></td>
-                                                                                                                                                                                                </tr>
+            row += `<td class="lastcol"></td>
+                        </tr>
 
-                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                        </table>`;
+                    </tbody>
+                </table>`;
 
             BudgetSheetTable.innerHTML = row;
         }
@@ -476,22 +482,22 @@
                 var row = "";
                 datasheetVM.incomeCategoryList.forEach((income, incomeIndex) => {
                     row += `<tr>
-                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
-                                                                                                                                                                                                                        data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
+                            <td class="headcol"><input type="text" placeholder="Enter Income" value="${income.catgeoryName}"
+                                    data-incomeindex="${incomeIndex}" class="IncomeName inputClass" ${(income.catgeoryName == "" ? "" :
                             "disabled")}></td>`
 
                     datasheetVM.monthList.forEach((month, i) => {
                         row += `<td  class="text-center subcol table-data-class"><input type="number" value="${income.amount[i]}" class="IncomeInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                                data-incomeindex="${incomeIndex}">
-                                                                                                                                                                                                                                <input type="hidden"  class="monthIncomeH" value="${i}">
-                                                                                                                                                                                                                                <input type="hidden" class="incomeindexH" value="${incomeIndex}">
-                                                                                                                                                                                                                                </td>`
+                                    data-incomeindex="${incomeIndex}">
+                                    <input type="hidden"  class="monthIncomeH" value="${i}">
+                                    <input type="hidden" class="incomeindexH" value="${incomeIndex}">
+                                    </td>`
                     })
-                    row += `<td class="text-center subcol inputClass"><i class="bi bi-trash text-danger deletedata inputClass" data-index="${incomeIndex}"
-                                                                                                                                                                                                                        data-isincome="true"></i>
-                                                                                                                                                                                                                        <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
-                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                            </tr>`
+                    row += `<td class="text-center lastcol inputClass"><i class="bi bi-trash text-danger deletedata inputClass" data-index="${incomeIndex}"
+                                data-isincome="true"></i>
+                                <input type="hidden" class="indexIncomeH" value="${incomeIndex}">
+                        </td>
+                    </tr>`
                     incomeIndex++;
                 });
 
@@ -502,21 +508,21 @@
                 var row = "";
                 datasheetVM.expenseCategoryList.forEach((expense, expenseIndex) => {
                     row += `<tr >
-                                                                                                                                                                                                                <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
-                                                                                                                                                                                                                        data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
+                                <td class="headcol"><input type="text" placeholder="Enter Expense" value="${expense.catgeoryName}"
+                                        data-expenseindex="${expenseIndex}" class="ExpenseName inputClass" ${(expense.catgeoryName == "" ? "" :
                             "disabled")}></td>`
                     for (i = 0; i < datasheetVM.monthList.length; i++) {
                         row += `<td  class="text-center subcol table-data-class"><input type="number" value="${expense.amount[i]}" class="ExpenseInput inputClass input-data-number" data-month="${i}"
-                                                                                                                                                                                                                            data-expenseindex="${expenseIndex}">
-                                                                                                                                                                                                                            <input type="hidden"  class="monthExpenseH" value="${i}">
-                                                                                                                                                                                                                            <input type="hidden" class="expenseindexH" value="${expenseIndex}">
-                                                                                                                                                                                                                            </td>`
+                                    data-expenseindex="${expenseIndex}">
+                                    <input type="hidden"  class="monthExpenseH" value="${i}">
+                                    <input type="hidden" class="expenseindexH" value="${expenseIndex}">
+                                    </td>`
                     }
-                    row += `<td class="text-center subcol "><i class="bi bi-trash text-danger deletedata inputClass" data-index="${expenseIndex}"
-                                                                                                                                                                                                                        data-isincome="false"></i>
-                                                                                                                                                                                                                        <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
-                                                                                                                                                                                                                </td>
-                                                                                                                                                                                                            </tr>`
+                    row += `<td class="text-center lastcol "><i class="bi bi-trash text-danger deletedata inputClass" data-index="${expenseIndex}"
+                                data-isincome="false"></i>
+                                <input type="hidden" class="indexExpenseH" value="${expenseIndex}">
+                        </td>
+                    </tr>`
                     expenseIndex++;
                 })
 
@@ -524,33 +530,6 @@
             }
         }
 
-        //delete category
-        function deleteCategory() {
-            IsChangeAfterExport = true;
-            var index = document.getElementById("cat-index").value;
-            var isIncome = document.getElementById("is-income").value == "true" ? true : false;
-            var catgeoryName = isIncome ? datasheetVM.incomeCategoryList[index].catgeoryName : datasheetVM.expenseCategoryList[index].catgeoryName;
-            var section = isIncome ? "Income" : "Expense";
-            if (isIncome) {
-                datasheetVM.incomeCategoryList.splice(index, 1);
-                if (datasheetVM.incomeCategoryList.length == 0) {
-                    addCategory(true);
-
-                }
-            } else {
-                datasheetVM.expenseCategoryList.splice(index, 1);
-                if (datasheetVM.expenseCategoryList.length == 0) {
-                    addCategory(false);
-
-                }
-            }
-            RenderTable(datasheetVM);
-            fillActivityArray("red", `${catgeoryName} category is deleted from ${section} Section`);
-            updateBudgetSheet();
-            successToaster("Category deleted successfully");
-            $('.btn-close').click();
-
-        }
 
         //add new category
         function addCategory(isIncome) {
@@ -575,6 +554,33 @@
             } else {
                 document.getElementsByClassName("ExpenseName")[datasheetVM.expenseCategoryList.length - 1].focus();
             }
+
+        }
+
+        //delete category
+        function deleteCategory() {
+            IsChangeAfterExport = true;
+            var index = document.getElementById("cat-index").value;
+            var isIncome = document.getElementById("is-income").value == "true" ? true : false;
+            var catgeoryName = isIncome ? datasheetVM.incomeCategoryList[index].catgeoryName : datasheetVM.expenseCategoryList[index].catgeoryName;
+            var section = isIncome ? "Income" : "Expense";
+            if (isIncome) {
+                datasheetVM.incomeCategoryList.splice(index, 1);
+                if (datasheetVM.incomeCategoryList.length == 0) {
+                    addCategory(true);
+                }
+                renderIncomeExpenseBody(true);
+            } else {
+                datasheetVM.expenseCategoryList.splice(index, 1);
+                if (datasheetVM.expenseCategoryList.length == 0) {
+                    addCategory(false);
+                }
+                renderIncomeExpenseBody(false);
+            }
+            fillActivityArray("red", `${catgeoryName} category is deleted from ${section} Section`);
+            updateBudgetSheet();
+            successToaster("Category deleted successfully");
+            $('.btn-close').click();
 
         }
 
@@ -631,6 +637,7 @@
                 renderIncomeExpenseBody(false)
                 fillActivityArray("green", `${value}Rs has been added to all months of Expense category ${datasheetVM.expenseCategoryList[catIndex].catgeoryName}`);
             }
+            
             updateBudgetSheet();
             $(".btn-close").click();
         }
@@ -685,7 +692,7 @@
             $(".btn-close").click();
         }
 
-        //extract data from table to gemerate excel file
+        //extract data from table to generate excel file
         function extractData(tableId, isDeleteCol = false) {
             const table = document.getElementById(tableId);
             const rows = table.querySelectorAll("tr");
@@ -713,21 +720,21 @@
         //export budgetsheet and activity sheet to excel
         function ExportSheet() {
             var table = `<table id=activity-table>
-                                                                                                                                    <thead>
-                                                                                                                                        <tr>
-                                                                                                                                            <th>Time</th>
-                                                                                                                                            <th>Message</th>
-                                                                                                                                        </tr>
-                                                                                                                                    </thead>
-                                                                                                                                    <tbody>`;
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
             for (i = 0; i < messageArray.length; i++) {
                 table += `<tr>
-                                                                                                                                            <td>${timeArray[i]}</td>
-                                                                                                                                            <td>${messageArray[i]}</td>
-                                                                                                                                        </tr>`;
+                            <td>${timeArray[i]}</td>
+                            <td>${messageArray[i]}</td>
+                        </tr>`;
             }
             table += `</tbody>
-                                                                                                                                </table>`;
+                    </table>`;
 
             document.getElementById("exportActivityTable").innerHTML = table;
 
@@ -758,21 +765,21 @@
             }
             else {
                 var table = `<table id=activity-table>
-                                                                                                                                    <thead>
-                                                                                                                                        <tr>
-                                                                                                                                            <th>Time</th>
-                                                                                                                                            <th>Message</th>
-                                                                                                                                        </tr>
-                                                                                                                                    </thead>
-                                                                                                                                    <tbody>`;
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
                 for (i = 0; i < messageArray.length; i++) {
                     table += `<tr>
-                                                                                                                                            <td>${timeArray[i]}</td>
-                                                                                                                                            <td>${messageArray[i]}</td>
-                                                                                                                                        </tr>`;
+                                <td>${timeArray[i]}</td>
+                                <td>${messageArray[i]}</td>
+                            </tr>`;
                 }
                 table += `</tbody>
-                                                                                                                                </table>`;
+                        </table>`;
             }
             document.getElementById("exportActivityTable").innerHTML = table;
             var table = document.getElementById("activity-table");
@@ -822,17 +829,19 @@
             for (var i = timeArray.length - 1; i >= 0; i--) {
 
                 activityList.innerHTML += `<li style="list-style: none; display: flex; align-items: center; margin-bottom: 10px; font-size: 14px;">
-                                                                                                                                                                                    <span class="text-secondary me-3 fw-bold">${timeArray[i]}</span>
-                                                                                                                                                                                    <span class="dot ${colorArray[i]} me-3"></span>
-                                                                                                                                                                                    <span class="text-dark fw-semibold">${messageArray[i]}</span>
-                                                                                                                                                                                </li>`;
+                                                                                                                                                                                                        <span class="text-secondary me-3 fw-bold">${timeArray[i]}</span>
+                                                                                                                                                                                                        <span class="dot ${colorArray[i]} me-3"></span>
+                                                                                                                                                                                                        <span class="text-dark fw-semibold">${messageArray[i]}</span>
+                                                                                                                                                                                                    </li>`;
             }
             document.getElementById("activity-list").innerHTML = activityList.innerHTML;
         }
 
         //import data fromexcel
-        function ImportFile() {
+        @* function ImportFile() {
             var file = document.getElementById("import-file-id").files[0];
+            var importedArray = [];
+            var importedMonths = [];
             if (!file) {
                 errorToaster("Please select a file to import.");
                 return;
@@ -850,9 +859,21 @@
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                console.log("imported data",jsonData); // Array of JSON objects
+                console.log("imported data", jsonData);
 
-                console.log("hiii", jsonData); // Array of JSON objects
+                if (jsonData.length === 0) {
+                    errorToaster("The selected file is empty or does not contain valid data.");
+                    return;
+                }
+                if (!jsonData[0].hasOwnProperty("Category")) {
+                    errorToaster("The selected file does not contain a valid data");
+                    return;
+                }
+                if (jsonData[0].Category !== "Income" && jsonData[0].Category !== "Expense") {
+                    errorToaster("The selected file does not start with a valid 'Income' or 'Expense' category.");
+                    return;
+                }
+
 
                 for (let i = 0; i < jsonData.length; i++) {
                     importedArray.push(jsonData[i]);
@@ -873,11 +894,30 @@
                     closingBalance: new Array(montharrayTemp.length).fill(0)
                 };
 
-                @* for(let i=0 ; i< montharrayTemp.length; i++){
-                datasheetVMdata.monthList.push(montharrayTemp[i]);
-            } *@
+                const monthMap = {
+                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+                };
 
-                    let count = 0;
+                const [firstMonthStr, lastMonthStr] = [montharrayTemp[0], montharrayTemp[montharrayTemp.length - 1]];
+                const [firstMonthName, firstYear] = firstMonthStr.split('-');
+                const [lastMonthName, lastYear] = lastMonthStr.split('-');
+
+                const startDate = new Date(parseInt(firstYear), monthMap[firstMonthName], 1);
+                const endDate = new Date(parseInt(lastYear), monthMap[lastMonthName] + 1, 0);
+
+                //format yyyy-mm-dd
+                const formatDate = (date) => {
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                };
+
+                document.getElementById('startDate').value = formatDate(startDate);
+                document.getElementById('endDate').value = formatDate(endDate);
+
+                let count = 0;
 
                 for (let i = 0; i < jsonData.length; i++) {
                     if (jsonData[i].Category == "Income") {
@@ -914,11 +954,12 @@
                     fillActivityArray("green", "Data imported from excel file");
                 }, 1000);
                 $(".btn-close").click();
+                document.getElementById("import-file-id").value = "";
+                importedArray = [];
 
             };
-
             reader.readAsArrayBuffer(file);
-        }
+        } *@
 
     </script>
 
@@ -926,12 +967,11 @@
 
     <script>
         const fileInput = document.getElementById('import-file-id');
-        var importedArray = [];
-        var importedMonths = [];
+
 
         $(document).ready(function () {
 
-            
+
             //start date validations
             $("#startDate").on("change", function () {
                 startDate = document.getElementById("startDate").value;
@@ -994,7 +1034,7 @@
 
             //disable expense name category
             $(document).on("change", ".ExpenseName", function () {
-                IsChangeAfterExport = true;
+                
                 var value = $(this).val();
                 var catIndex = $(this).data("expenseindex");
                 for (i = 0; i < datasheetVM.expenseCategoryList.length; i++) {
@@ -1007,6 +1047,7 @@
                     }
                 }
                 datasheetVM.expenseCategoryList[catIndex].catgeoryName = value;
+                IsChangeAfterExport = true;
                 updateBudgetSheet();
                 this.setAttribute("disabled", "disabled");
                 fillActivityArray("green", `${value} category is Added under Expense Section `);
@@ -1081,7 +1122,7 @@
                 }
             });
 
-            //applu to all when right clicked
+            //apply to all when right clicked
             $(document).on("contextmenu", ".input-data-number", function (e) {
                 e.preventDefault();
                 var catIndex;
@@ -1104,6 +1145,49 @@
                     document.getElementById("is-income-apply").value = false;
                 }
             })
+
+            @* $(document).on("contextmenu", ".IncomeName", function (e) {
+                e.preventDefault();
+                console.log("hiiiiiiiiiiiiiiii")
+                $('[data-toggle="popover"]').popover('hide');
+                // Show this one
+                $(this).popover('show');
+
+            })
+
+            const incomeInput = $('.IncomeName');
+            const expenseInput = $('.ExpenseName');
+
+            // Initialize the popover
+            incomeInput.popover({
+            trigger: 'manual',
+            html: true,
+            placement: 'top',
+            content: `
+                <input type="text" class="form-control mb-2" placeholder="Enter Income">
+                <button class="btn btn-dark btn-sm">Update</button>
+            `
+            });
+            expenseInput.popover({
+            trigger: 'manual', 
+            html: true,
+            placement: 'top',
+            content: `
+                <input type="text" class="form-control mb-2" placeholder="Enter Income">
+                <button class="btn btn-dark btn-sm">Update</button>
+            `
+            });
+
+             incomeInput.on('contextmenu', function (e) {
+                e.preventDefault();
+                console.log("helooooooooo")
+    
+                $('[data-toggle="popover"]').popover('hide');
+
+                // Show this one
+                incomeInput.popover('show');
+            });  *@
+
 
 
         })
